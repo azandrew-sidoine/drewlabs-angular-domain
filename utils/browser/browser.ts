@@ -51,6 +51,14 @@ export class Browser {
     window.print();
   }
 
+  public static printpart (area: string) {
+    let printwin = window.open("");
+    printwin.document.write(document.getElementById(area).innerHTML);
+    printwin.stop();
+    printwin.print();
+    printwin.close();
+  }
+
   public static definePrintHandlers(
     callBackBeforePrint: WindowEvent,
     callBackAfterPrint: WindowEvent
