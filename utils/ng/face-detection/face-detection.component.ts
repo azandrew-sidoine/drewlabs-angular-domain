@@ -76,7 +76,6 @@ export class FaceDetectionComponent implements OnInit, AfterViewInit, OnDestroy 
   ) { }
 
   async ngOnInit() {
-    console.log("component image ");
     await this.initializeComponent();
   }
 
