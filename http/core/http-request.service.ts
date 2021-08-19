@@ -1,7 +1,8 @@
 import {
   HttpClient,
   HttpErrorResponse,
-  HttpHeaders
+  HttpHeaders,
+  HttpProgressEvent
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, startWith } from 'rxjs/operators';
@@ -41,6 +42,11 @@ export class HttpRequestService implements IHttpService {
   private _errorState$ = createSubject<HTTPErrorState>();
   errorState$ = this._errorState$.pipe(
     startWith({} as HTTPErrorState)
+  );
+
+  private _progressEventState$ = createSubject<{event: HttpProgressEvent, path?: string}>();
+  progressEventState = this._progressEventState$.pipe(
+    startWith({event: null, path: ''} as {event: HttpProgressEvent, path?: string})
   );
 
   constructor(
@@ -166,5 +172,9 @@ export class HttpRequestService implements IHttpService {
           _(res);
         });
     });
+  }
+
+  noticeProgressEvent(event: HttpProgressEvent, path?: string) {
+    this._progressEventState$.next({event, path});
   }
 }

@@ -41,5 +41,5 @@ export const isObservable = (value: any) => value instanceof Observable;
 /**
  * @description Returns an empty observable
  */
-export const emptyObservable = () => observableOf(EMPTY);
+export const emptyObservable = () => observableFrom(EMPTY);
 
