@@ -4,7 +4,6 @@ import { interval } from "rxjs";
 import { mergeMap, tap } from "rxjs/operators";
 import { emptyObservable, observableFrom } from "../../../rxjs/helpers";
 import { Video } from "../../ng/webcam/helpers";
-import { isDefined } from "../../types";
 import { drawMesh } from "../helpers";
 import { FaceLandmarksModelConfig, loadModel, predict } from "../helpers/facemesh";
 
@@ -56,11 +55,7 @@ export class FaceMeshPointsDrawerService {
 
   public drawFacePoints = (context?: CanvasRenderingContext2D) => (facePoints?: FaceLandmarksPrediction[]) => {
     if (facePoints && context) {
-      requestAnimationFrame(
-        () => {
-          drawMesh(facePoints, context || undefined)
-        }
-      );
+      drawMesh(facePoints, context || undefined);
     }
   }
 }

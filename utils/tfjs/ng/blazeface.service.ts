@@ -5,7 +5,6 @@ import { mergeMap, tap } from "rxjs/operators";
 import { emptyObservable, observableFrom } from "../../../rxjs/helpers";
 import { Video } from "../../ng/webcam/helpers";
 import { drawRectStroke } from "../../opencv/helpers";
-import { isDefined } from "../../types";
 import { BlazeModelConfig, loadModel, predict } from "../helpers/blazeface";
 
 @Injectable({
