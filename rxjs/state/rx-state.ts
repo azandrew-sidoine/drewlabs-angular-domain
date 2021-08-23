@@ -1,6 +1,6 @@
 import { createSubject, observableOf } from '../helpers';
 import { isObservable, Observable } from 'rxjs';
-import { scan, startWith, mergeMap, shareReplay, filter, delay, first } from 'rxjs/operators';
+import { scan, shareReplay, filter, delay, first, startWith, concatMap } from 'rxjs/operators';
 import { doLog } from '../operators/index';
 import { isDefined } from '../../utils/types/type-utils';
 
@@ -17,7 +17,7 @@ export enum DefaultStoreAction {
 
 export type StateReducerFn<T, A> = (state: T, action: A) => T;
 
-export type ActionCreatorHandlerFn<A, K> = (...params: K[]) => A;
+export type ActionCreatorHandlerFn<A> = (...params: any[]) => A;
 
 export type ActionCreatorFn<A extends Partial<StoreAction>, K> = (handlerFunc: (...params: K[]) => A) => A;
 
@@ -51,20 +51,19 @@ export class DrewlabsFluxStore<T, AType extends Partial<StoreAction>> {
   /**
    * @description EntityState instance initializer
    */
-  constructor(reducer: StateReducerFn<T, AType>, initialState?: T) {
+  constructor(reducer: StateReducerFn<T, AType>, initialState: T) {
     this.state$ = this._actions$.pipe(
       doLog('Before merge mapping: '),
-      mergeMap((action) => isObservable(action) ? action as Observable<AType> : observableOf<AType>(action as AType)),
+      concatMap((action) => isObservable(action) ? action as Observable<AType> : observableOf<AType>(action) as Observable<AType>),
       filter(state => isDefined(state)),
-      doLog('Action : '),
-      startWith(initialState),
+      startWith(initialState as any),
       scan(reducer),
-      doLog('State : '),
+      doLog('State after applying reducers: '),
       shareReplay(1)
     );
   }
 
-  public bindActionCreator = <K>(handler: ActionCreatorHandlerFn<AType, K>) => (...args: any) => {
+  public bindActionCreator = <K>(handler: ActionCreatorHandlerFn<AType>) => (...args: any) => {
     const action = handler.call(null, ...args) as AType;
     this._actions$.next(action);
     if (isObservable<any>(action.payload)) {
@@ -72,7 +71,7 @@ export class DrewlabsFluxStore<T, AType extends Partial<StoreAction>> {
       observableOf([action.payload])
         .pipe(
           first(),
-          delay(100)
+          delay(10)
         )
         .subscribe(state => {
           this._actions$.next(state[0]);
@@ -90,7 +89,7 @@ export class DrewlabsFluxStore<T, AType extends Partial<StoreAction>> {
 
 // tslint:disable-next-line: typedef
 export function createAction<T, A, K>(
-  rxStore: DrewlabsFluxStore<T, A> | IInjectableStore<T, A>, actionCreator: ActionCreatorHandlerFn<A, K>
+  rxStore: DrewlabsFluxStore<T, A> | IInjectableStore<T, A>, actionCreator: ActionCreatorHandlerFn<A>
 ) {
   if (instanceOfInjectableStore(rxStore)) {
     return (rxStore as IInjectableStore<T, A>).getInjectedStore().bindActionCreator<K>(actionCreator);
@@ -98,7 +97,7 @@ export function createAction<T, A, K>(
   return (rxStore as DrewlabsFluxStore<T, A>).bindActionCreator<K>(actionCreator);
 }
 
-export const createStore = <T, K>(reducer: StateReducerFn<T, K>, initialState?: T) => {
+export const createStore = <T, K>(reducer: StateReducerFn<T, K>, initialState: T) => {
   return new DrewlabsFluxStore(reducer, initialState);
 };
 
