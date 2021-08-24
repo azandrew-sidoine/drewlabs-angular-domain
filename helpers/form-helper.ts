@@ -77,7 +77,7 @@ export class FormHelperService implements OnDestroy {
     ) : Promise.all([]);
   }
 
-  suscribe = () => {
+  subscribe = () => {
     // Initialize publishers
     // Register to publishers events
     this.loadForms.asObservable().pipe(
@@ -176,7 +176,7 @@ export abstract class FormsViewComponent<T extends IEntity> extends AbstractAler
     this.subscribeToUIActions();
     this.appUIStoreManager.initializeUIStoreAction();
     // Call service subscription method to subscribe to event
-    this.formHelper.suscribe();
+    this.formHelper.subscribe();
     // Triggers form loading event
     this.formHelper.loadForms.next({
       configs: this.getFormConfigs(),
