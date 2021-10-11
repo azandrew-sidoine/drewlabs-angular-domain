@@ -96,7 +96,7 @@ export class FaceDetectionComponent
 
   async ngAfterViewInit() {}
 
-  initializeComponent = () =>
+  initializeComponent = (paramDeviceId = null) =>
     (async () => {
       this.showCameraError = false;
       this.showCanvas = false;
@@ -184,8 +184,9 @@ export class FaceDetectionComponent
                 .subscribe();
             }
           },
-          { width: { exact: this.width }, height: { exact: this.height } }
+          paramDeviceId == null ? { width: { exact: this.width }, height: { exact: this.height } } : { width: { exact: this.width }, height: { exact: this.height }, deviceId: paramDeviceId}
         );
+
       } catch (error) {
         this.showCameraError = true;
       }

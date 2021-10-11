@@ -17,7 +17,7 @@ export class UserCameraService {
   constructor(
     @Inject(DOCUMENT) private document: Document,
     @Inject(NAVIGATOR) private navigator: Navigator
-  ) {}
+  ) { }
 
   onVideoCanPlay() {
     if (this._onCameraStartedCallback) {
@@ -58,7 +58,7 @@ export class UserCameraService {
     video: HTMLVideoElement,
     resolution: string,
     callback: OnStartUserCameraHandlerFn,
-    customResolution?: { width: { exact: number }; height: { exact: number } }
+    customResolution?: MediaTrackConstraints
   ) => {
     const constraints: VideoConstraints = {
       qvga: { width: { exact: 320 }, height: { exact: 240 } },
@@ -99,7 +99,7 @@ export class UserCameraService {
     }); //
   };
 
-  stopCamera() {
+  stopCamera() {  
     this.dispose();
   }
 
@@ -118,4 +118,16 @@ export class UserCameraService {
       this._mediaStream = undefined;
     }
   };
+
+  getAllVideoTracks(): Promise<MediaDeviceInfo[]> {
+    return new Promise((resolve, reject) => {
+      let data: MediaDeviceInfo[] = [];
+      this.navigator.mediaDevices.enumerateDevices().then((result) => {
+        result.forEach((item) => {
+          item.kind === 'videoinput' ? data.push(item) : null
+        });
+        resolve(data);
+      });
+    });
+  }
 }

@@ -9,11 +9,7 @@
   playsinline
 ></video>
 <!-- Add Searching face animation Here -->
-<div
-  [ngClass]="
-    showCanvas && !showCameraError ? 'not-hidden-canvas text-center' : 'hidden-canvas text-center'
-  "
->
+<div [ngClass]="showCanvas && !showCameraError ? 'not-hidden-canvas text-center' : 'hidden-canvas text-center'">
   <canvas #canvasElement></canvas>
 </div>
 <ng-container *ngIf="!showCameraError">
@@ -26,3 +22,9 @@
   <ng-content select="[cameraerror]"></ng-content>
 </ng-container>
 <!--\ End Camera error placeholder -->
+
+<!-- Camera sources -->
+<ng-container *ngIf="!showCameraError && showCanvas">
+  <ng-content select="[camerasources]"></ng-content>
+</ng-container>
+<!--\ End Camera sources -->
