@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { readFileAsDataURI, Browser, b64toBlob } from '../utils/browser';
 import { HttpRequestService } from '../http/core/http-request.service';
+import { after } from '../utils/types/strings';
 
 /**
  * @description Type definition for a file ressource object
@@ -68,7 +69,12 @@ export class FileHelperService implements UploadedFileHelperInterface {
    * @inheritdoc
    */
   async loadFileAsDataURI(url: string): Promise<string> {
-    return readFileAsDataURI(await this.client.loadServerFile(url) as Blob);
+    const blob = await this.client.loadServerFile(url) as Blob;
+    const matches = blob.type?.match(/video\/x-matroska(;([\w]{1,})=?(([\w]{1,}))?)?/)?.length;
+    console.log(blob.type);
+    const type = matches ? 'video/webm' : blob.type;
+    const data = await readFileAsDataURI(blob);
+    return `data:${type.endsWith(';') ? type.substring(0, type.length - 1) : type};base64,${after("base64,", data)}`;
   }
 
   /**
