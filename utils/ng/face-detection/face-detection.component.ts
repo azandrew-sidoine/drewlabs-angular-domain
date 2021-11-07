@@ -184,9 +184,17 @@ export class FaceDetectionComponent
                 .subscribe();
             }
           },
-          paramDeviceId == null ? { width: { exact: this.width }, height: { exact: this.height } } : { width: { exact: this.width }, height: { exact: this.height }, deviceId: paramDeviceId}
+          paramDeviceId == null
+            ? {
+                width: { exact: this.width },
+                height: { exact: this.height },
+              }
+            : {
+                width: { exact: this.width },
+                height: { exact: this.height },
+                deviceId: paramDeviceId,
+              }
         );
-
       } catch (error) {
         this.showCameraError = true;
       }

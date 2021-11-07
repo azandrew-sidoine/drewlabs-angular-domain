@@ -96,10 +96,10 @@ export class UserCameraService {
         .catch((err) => {
           reject(`User camera Error: ${err.name} - ${err.message}`);
         });
-    }); //
+    });
   };
 
-  stopCamera() {  
+  stopCamera() {
     this.dispose();
   }
 
