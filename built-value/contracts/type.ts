@@ -1,7 +1,6 @@
-import { isDefined } from '../../utils/types/type-utils';
+import { isDefined } from "../../utils/types/type-utils";
 
 export interface TypeBuilder<T> {
-
   /**
    * @description Interface definition for building an instance of T
    * @param bluePrint [[ new () => T]]
@@ -14,7 +13,7 @@ export interface TypeBuilder<T> {
    * @param instance [[T]]
    * @param params [[object]]
    */
-  rebuild(instance: T, params: T|object): T;
+  rebuild(instance: T, params: T | object): T;
 }
 
 /**
@@ -22,7 +21,10 @@ export interface TypeBuilder<T> {
  * @param bluePrint [[new () => T]]
  * @param params [[object]]
  */
-export function buildJSObjectType<T extends any>(bluePrint: new () => T, params: object): T {
+export function buildJSObjectType<T extends any>(
+  bluePrint: new () => T,
+  params: object
+): T {
   const obj = new bluePrint();
   Object.keys(params).forEach((key) => {
     if (obj.hasOwnProperty(key)) {
@@ -32,7 +34,10 @@ export function buildJSObjectType<T extends any>(bluePrint: new () => T, params:
   return obj;
 }
 
-export function rebuildJSObjectType<T extends any>(instance: T, params: T|object): T {
+export function rebuildJSObjectType<T extends any>(
+  instance: T,
+  params: T | object
+): T {
   if (!isDefined(instance)) {
     return;
   }
@@ -43,3 +48,10 @@ export function rebuildJSObjectType<T extends any>(instance: T, params: T|object
   });
   return instance;
 }
+
+export type JSONSerializationRType<T> =
+  | { [index: string]: keyof T }
+  | { [index: string]: any };
+
+
+export type FromSerializeCallbackType<T> = (serialized: { [index: string]: any }) => T;
