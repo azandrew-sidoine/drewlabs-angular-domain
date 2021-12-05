@@ -1,26 +1,32 @@
-import { Injectable, OnDestroy, Injector, } from '@angular/core';
-import { FormService } from '../components/dynamic-inputs/core/form-control/form.service';
-import { TranslationService } from '../translator';
-import { DynamicFormHelpers, ComponentReactiveFormHelpers } from './component-reactive-form-helpers';
-import { ICollection } from '../contracts/collection-interface';
-import { filter, startWith, takeUntil } from 'rxjs/operators';
-import { AbstractEntityProvider } from '../entity/abstract-entity';
-import { AbstractAlertableComponent } from 'src/app/lib/domain/helpers/component-interfaces';
-import { FormGroup } from '@angular/forms';
-import { IEntity } from '../entity/contracts/entity';
-import { TypeUtilHelper } from './type-utils-helper';
-import { AppUIStoreManager, ActionResponseParams } from './app-ui-store-manager.service';
-import { ISerializableBuilder } from '../built-value/contracts/serializers';
-import { IDynamicForm } from '../components/dynamic-inputs/core/contracts/dynamic-form';
-import { IResponseBody } from '../http/contracts/http-response-data';
-import { TranslationParms } from '../translator/translator.service';
-import * as lodash from 'lodash';
-import { HandlersResultMsg } from '../entity/contracts/entity-handler-types';
-import { ArrayUtils, isDefined } from '../utils';
-import { Collection } from '../collections/collection';
-import { createSubject } from '../rxjs/helpers';
-import { Observable } from 'rxjs';
-import { isArray } from 'lodash';
+import { Injectable, OnDestroy, Injector } from "@angular/core";
+import { FormService } from "../components/dynamic-inputs/core/form-control/form.service";
+import { TranslationService } from "../translator";
+import {
+  DynamicFormHelpers,
+  ComponentReactiveFormHelpers,
+} from "./component-reactive-form-helpers";
+import { ICollection } from "../contracts/collection-interface";
+import { filter, startWith, takeUntil } from "rxjs/operators";
+import { AbstractEntityProvider } from "../entity/abstract-entity";
+import { AbstractAlertableComponent } from "src/app/lib/domain/helpers/component-interfaces";
+import { FormGroup } from "@angular/forms";
+import { IEntity } from "../entity/contracts/entity";
+import { TypeUtilHelper } from "./type-utils-helper";
+import {
+  AppUIStoreManager,
+  ActionResponseParams,
+} from "./app-ui-store-manager.service";
+import { ISerializableBuilder } from "../built-value/contracts/serializers";
+import { IDynamicForm } from "../components/dynamic-inputs/core/contracts/dynamic-form";
+import { IResponseBody } from "../http/contracts/http-response-data";
+import { TranslationParms } from "../translator/translator.service";
+import * as lodash from "lodash";
+import { HandlersResultMsg } from "../entity/contracts/entity-handler-types";
+import { ArrayUtils, isDefined } from "../utils";
+import { Collection } from "../collections/collection";
+import { createSubject } from "../rxjs/helpers";
+import { Observable } from "rxjs";
+import { isArray } from "lodash";
 
 /**
  * @description Definition of form request configuration object
@@ -31,16 +37,19 @@ export interface IFormRequestConfig {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class FormHelperService implements OnDestroy {
-
   private inMemoryFormCollection: ICollection<IDynamicForm> = new Collection();
   /**
    * @description Load dynamic form subject instance
    * @var [[BehaviorSubject]]
    */
-  public loadForms = createSubject<{ configs: IFormRequestConfig[], result: HandlersResultMsg }>();
+  public loadForms =
+    createSubject<{
+      configs: IFormRequestConfig[];
+      result: HandlersResultMsg;
+    }>();
 
   /**
    * @description Form successfully loaded subject instance
@@ -48,86 +57,118 @@ export class FormHelperService implements OnDestroy {
   // tslint:disable-next-line: variable-name
   protected _formLoaded = createSubject<ICollection<IDynamicForm>>();
   get formLoaded$(): Observable<ICollection<IDynamicForm>> {
-    return this._formLoaded.pipe(startWith(this.inMemoryFormCollection), takeUntil(this.destroy$));
+    return this._formLoaded.pipe(
+      startWith(this.inMemoryFormCollection),
+      takeUntil(this.destroy$)
+    );
   }
   public readonly destroy$ = createSubject();
 
   /**
    * @description Instance constructor
    */
-  constructor(public readonly form: FormService, private translate: TranslationService) { }
+  constructor(
+    public readonly form: FormService,
+    private translate: TranslationService
+  ) {}
 
   getFormById = (id: number | string) => {
     return new Promise<IDynamicForm>((resolve, _) => {
-      this.form.getForm(id).then(async (f) => {
-        if (isDefined(f)) {
-          resolve(await DynamicFormHelpers.buildDynamicForm(f, this.translate));
-        }
-        resolve(null);
-      })
-        .catch((err) => { _(err); });
+      this.form
+        .getForm(id)
+        .then(async (f) => {
+          if (isDefined(f)) {
+            resolve(
+              await DynamicFormHelpers.buildDynamicForm(f, this.translate)
+            );
+          }
+          resolve(null);
+        })
+        .catch((err) => {
+          _(err);
+        });
     });
-  }
+  };
 
   getForms = async (params: { [prop: string]: any }) => {
     const values = await this.form.getForms(params);
-    return values && isArray(values) ? Promise.all(
-      values.map(
-        value => DynamicFormHelpers.buildDynamicForm(value, this.translate))
-    ) : Promise.all([]);
-  }
+    return values && isArray(values)
+      ? Promise.all(
+          values.map((value) =>
+            DynamicFormHelpers.buildDynamicForm(value, this.translate)
+          )
+        )
+      : Promise.all([]);
+  };
 
   subscribe = () => {
     // Initialize publishers
     // Register to publishers events
-    this.loadForms.asObservable().pipe(
-      takeUntil(this.destroy$),
-      filter((source) => isDefined(source))
-    ).subscribe(async (source) => {
-      try {
-        const collection: ICollection<IDynamicForm> = new Collection();
-        // Get list of form ids that are not in the in-memory forms collection
-        const configs = source.configs.filter((item) => {
-          return !isDefined(this.inMemoryFormCollection.get(item.id.toString()));
-        });
-        // Get list of form ids that are in the in-memory forms collection
-        const inmemoryConfigs = source.configs.filter((item) => {
-          return isDefined(this.inMemoryFormCollection.get(item.id.toString()));
-        });
-        // Get form configurations that are not in the in-memory forms' collection from the backend provider
-        const values = (await this.getForms({
-          _query: JSON.stringify({
-            whereIn: {
-              column: 'id',
-              match: configs.map(config => config.id)
-            }
-          }),
-          with_controls: true
-        }) as IDynamicForm[]).reduce((acc, current) => {
-          const obj = {} as { [prop: string]: any };
-          obj[current.id.toString()] = current;
-          return { ...acc, ...obj };
-        }, {}) as { [prop: string]: IDynamicForm };
-        configs.forEach((item) => {
-          collection.add(item.label, { ...values[item.id.toString()] });
-          // Add loaded form configurations to the in-memory collection
-          this.inMemoryFormCollection.add(item.id.toString(), { ...values[item.id.toString()] });
-        });
-        inmemoryConfigs.forEach((item) => {
-          // Get the dynamic form configuration from the in-memory forms' collection
-          collection.add(item.label, Object.assign({}, this.inMemoryFormCollection.get(item.id.toString())));
-        });
-        this._formLoaded.next(lodash.cloneDeep(collection));
-        if (isDefined(source.result.success)) {
-          source.result.success();
+    this.loadForms
+      .asObservable()
+      .pipe(
+        takeUntil(this.destroy$),
+        filter((source) => isDefined(source))
+      )
+      .subscribe(async (source) => {
+        try {
+          const collection: ICollection<IDynamicForm> = new Collection();
+          // Get list of form ids that are not in the in-memory forms collection
+          const configs = source.configs.filter((item) => {
+            return !isDefined(
+              this.inMemoryFormCollection.get(item.id.toString())
+            );
+          });
+          // Get list of form ids that are in the in-memory forms collection
+          const inmemoryConfigs = source.configs.filter((item) => {
+            return isDefined(
+              this.inMemoryFormCollection.get(item.id.toString())
+            );
+          });
+          // Get form configurations that are not in the in-memory forms' collection from the backend provider
+          const values = (
+            (await this.getForms({
+              _query: JSON.stringify({
+                whereIn: {
+                  column: "id",
+                  match: configs.map((config) => config.id),
+                },
+              }),
+              with_controls: true,
+            })) as IDynamicForm[]
+          ).reduce((acc, current) => {
+            const obj = {} as { [prop: string]: any };
+            obj[current.id.toString()] = current;
+            return { ...acc, ...obj };
+          }, {}) as { [prop: string]: IDynamicForm };
+          configs.forEach((item) => {
+            collection.add(item.label, { ...values[item.id.toString()] });
+            // Add loaded form configurations to the in-memory collection
+            this.inMemoryFormCollection.add(item.id.toString(), {
+              ...values[item.id.toString()],
+            });
+          });
+          inmemoryConfigs.forEach((item) => {
+            // Get the dynamic form configuration from the in-memory forms' collection
+            collection.add(
+              item.label,
+              Object.assign(
+                {},
+                this.inMemoryFormCollection.get(item.id.toString())
+              )
+            );
+          });
+          this._formLoaded.next(lodash.cloneDeep(collection));
+          if (isDefined(source.result.success)) {
+            source.result.success();
+          }
+        } catch (error) {
+          if (isDefined(source.result.error)) {
+            throw source.result.error(error);
+          }
         }
-      } catch (error) {
-        if (isDefined(source.result.error)) {
-          throw source.result.error(error);
-        }
-      }
-    });
-  }
+      });
+  };
 
   /**
    * @description Unsubscribe from publishers events
@@ -135,7 +176,7 @@ export class FormHelperService implements OnDestroy {
   unsubscribe = () => {
     this.destroy$.next({});
     return this;
-  }
+  };
 
   /**
    * @description Handles sujects completers
@@ -143,7 +184,7 @@ export class FormHelperService implements OnDestroy {
    */
   onCompleActionListeners = (actions: any[] = null) => {
     this.destroy$.next({});
-  }
+  };
 
   public ngOnDestroy(): void {
     this.unsubscribe();
@@ -154,8 +195,9 @@ export class FormHelperService implements OnDestroy {
  * @classdesc Implementation provider for form component views. The current class provides with basic functionnalities of
  * functionnalities a simple form view component will handle through the use of dynamic form implementions,
  */
-export abstract class FormsViewComponent<T extends IEntity> extends AbstractAlertableComponent {
-
+export abstract class FormsViewComponent<
+  T extends IEntity
+> extends AbstractAlertableComponent {
   submissionEndpointURL: string;
   componentFormGroup: FormGroup;
   public selected: T;
@@ -181,33 +223,38 @@ export abstract class FormsViewComponent<T extends IEntity> extends AbstractAler
     this.formHelper.loadForms.next({
       configs: this.getFormConfigs(),
       result: {
-        error: (error: any) => {
-        },
+        error: (error: any) => {},
         success: () => {
           this.appUIStoreManager.completeUIStoreAction();
         },
-        warnings: (errors: any) => {
-        }
-      }
-    }
-    );
+        warnings: (errors: any) => {},
+      },
+    });
     // Register to form loading event response
-    this.formHelper.formLoaded$.pipe(
-      takeUntil(this.formHelper.destroy$),
-      filter((form) => {
-        return this.typeHelper.isDefined(form) && (
-          ArrayUtils.containsAll(form.keys(), this.getFormConfigs().map(i => i.label))
-        );
-      })
-    )
-      .subscribe((forms) => {
-        if (forms) {
-          this.onFormCollectionLoaded(forms);
-          this.suscribeToFormControlChanges();
+    this.formHelper.formLoaded$
+      .pipe(
+        takeUntil(this.formHelper.destroy$),
+        filter((form) => {
+          return (
+            this.typeHelper.isDefined(form) &&
+            ArrayUtils.containsAll(
+              form.keys(),
+              this.getFormConfigs().map((i) => i.label)
+            )
+          );
+        })
+      )
+      .subscribe(
+        (forms) => {
+          if (forms) {
+            this.onFormCollectionLoaded(forms);
+            this.suscribeToFormControlChanges();
+          }
+        },
+        (err) => {
+          console.log(err);
         }
-      }, (err) => {
-        console.log(err);
-      });
+      );
   }
 
   async onFormSubmit(): Promise<void> {
@@ -215,20 +262,30 @@ export abstract class FormsViewComponent<T extends IEntity> extends AbstractAler
       this.componentFormGroup
     );
     if (this.componentFormGroup.valid) {
-      const obj = this.onFormGroupRawValue(this.componentFormGroup.getRawValue());
+      const obj = this.onFormGroupRawValue(
+        this.componentFormGroup.getRawValue()
+      );
       this.appUIStoreManager.initializeUIStoreAction();
       if (!this.typeHelper.isDefined(this.selected)) {
         this.entityProvider.createRequest.next({
-          builder: this.builder, req: { path: this.submissionEndpointURL, body: obj }
+          builder: this.builder,
+          req: { path: this.submissionEndpointURL, body: obj },
         });
       } else {
         if (this.typeHelper.isDefined(this.selected)) {
           this.entityProvider.updateRequest.next({
             // tslint:disable-next-line: max-line-length
-            builder: this.builder, req: { path: this.submissionEndpointURL, body: obj, id: this.selected.id }
+            builder: this.builder,
+            req: {
+              path: this.submissionEndpointURL,
+              body: obj,
+              id: this.selected.id,
+            },
           });
         } else {
-          this.appUIStoreManager.completeActionWithWarning(`Please set the selected attribute on the current component`);
+          this.appUIStoreManager.completeActionWithWarning(
+            `Please set the selected attribute on the current component`
+          );
         }
       }
     }
@@ -249,7 +306,9 @@ export abstract class FormsViewComponent<T extends IEntity> extends AbstractAler
   /**
    * @description provides implementation for building loaded form into formgroup | abstract control
    */
-  protected abstract onFormCollectionLoaded(forms: ICollection<IDynamicForm>): void;
+  protected abstract onFormCollectionLoaded(
+    forms: ICollection<IDynamicForm>
+  ): void;
 
   /**
    * @description This method should be use to provide form group values parsing when the form gets submitted by the user
@@ -276,8 +335,9 @@ export abstract class FormsViewComponent<T extends IEntity> extends AbstractAler
  * @description Provides basic implementation for form view component containers, handling create,
  * update, and delete operation at the lower level
  */
-export abstract class FormViewContainerComponent<T> extends AbstractAlertableComponent {
-
+export abstract class FormViewContainerComponent<
+  T
+> extends AbstractAlertableComponent {
   public typeHelper: TypeUtilHelper;
   // tslint:disable-next-line: variable-name
   private _translate: TranslationService;
@@ -296,26 +356,53 @@ export abstract class FormViewContainerComponent<T> extends AbstractAlertableCom
 
   async initState(): Promise<void> {
     this._entityProvider.subscribe();
-    const translations = await this._translate.loadTranslations(this._tranlationConfigs.keys, this._tranlationConfigs.translateParams);
-    this._entityProvider.deleteResult$.pipe(
-      takeUntil(this._entityProvider.destroy$),
-      filter((source) => this.typeHelper.isDefined(source))
-    ).subscribe((res) => {
-      this.onDeleteActionResult(res);
-    }, _ => this.appUIStoreManager.completeActionWithError(`${translations.serverRequestFailed}`));
+    const translations = await this._translate.loadTranslations(
+      this._tranlationConfigs.keys,
+      this._tranlationConfigs.translateParams
+    );
+    this._entityProvider.deleteResult$
+      .pipe(
+        takeUntil(this._entityProvider.destroy$),
+        filter((source) => this.typeHelper.isDefined(source))
+      )
+      .subscribe(
+        (res) => {
+          this.onDeleteActionResult(res);
+        },
+        (_) =>
+          this.appUIStoreManager.completeActionWithError(
+            `${translations.serverRequestFailed}`
+          )
+      );
 
-    this._entityProvider.createResult$.pipe(
-      takeUntil(this._entityProvider.destroy$),
-      filter((form) => this.typeHelper.isDefined(form))
-    ).subscribe((res) => {
-      this.onCreateActionResult(res);
-    }, _ => this.appUIStoreManager.completeActionWithError(`${translations.serverRequestFailed}`));
-    this._entityProvider.updateResult$.pipe(
-      takeUntil(this._entityProvider.destroy$),
-      filter((source) => this.typeHelper.isDefined(source))
-    ).subscribe((res) => {
-      this.onUpdateActionResult(res);
-    }, _ => this.appUIStoreManager.completeActionWithError(`${translations.serverRequestFailed}`));
+    this._entityProvider.createResult$
+      .pipe(
+        takeUntil(this._entityProvider.destroy$),
+        filter((form) => this.typeHelper.isDefined(form))
+      )
+      .subscribe(
+        (res) => {
+          this.onCreateActionResult(res);
+        },
+        (_) =>
+          this.appUIStoreManager.completeActionWithError(
+            `${translations.serverRequestFailed}`
+          )
+      );
+    this._entityProvider.updateResult$
+      .pipe(
+        takeUntil(this._entityProvider.destroy$),
+        filter((source) => this.typeHelper.isDefined(source))
+      )
+      .subscribe(
+        (res) => {
+          this.onUpdateActionResult(res);
+        },
+        (_) =>
+          this.appUIStoreManager.completeActionWithError(
+            `${translations.serverRequestFailed}`
+          )
+      );
   }
 
   /**
@@ -350,7 +437,10 @@ export abstract class FormViewContainerComponent<T> extends AbstractAlertableCom
    */
   // tslint:disable-next-line: deprecation
   async onDeleteActionResult(result: IResponseBody): Promise<void> {
-    const translations = await this._translate.loadTranslations(this._tranlationConfigs.keys, this._tranlationConfigs.translateParams);
+    const translations = await this._translate.loadTranslations(
+      this._tranlationConfigs.keys,
+      this._tranlationConfigs.translateParams
+    );
     this.appUIStoreManager.onActionResponse({
       res: result,
       okMsg: translations.successfulRequest,
@@ -370,7 +460,9 @@ export abstract class FormViewContainerComponent<T> extends AbstractAlertableCom
    * @param result [[IResponseBody]]
    */
   // tslint:disable-next-line: deprecation
-  abstract onCreateActionResult(result: IResponseBody | T | boolean): Promise<void>;
+  abstract onCreateActionResult(
+    result: IResponseBody | T | boolean
+  ): Promise<void>;
 
   dispose(): void {
     this._entityProvider.unsubscribe();
