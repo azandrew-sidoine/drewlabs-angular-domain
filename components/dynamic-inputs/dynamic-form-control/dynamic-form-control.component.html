@@ -6,7 +6,7 @@
       </app-dynamic-file-input>
     </div>
     <ng-container *ngSwitchCase="inputTypes.HTML_INPUT">
-      <div [innerHTML]="inputConfig.value | safeWebContent"></div>
+      <div *ngIf="inputConfig.value" [innerHTML]="inputConfig.value | safeWebContent"></div>
     </ng-container>
     <div *ngSwitchCase="inputTypes.HIDDEN_INPUT">
       <input [tabIndex]="-1" type="hidden" [class]="inputConfig.classes" [formControl]="control" />
