@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AccountamountFormaterPipe, AmountFormaterPipe, FormatAmountPipe, ParseInt, PositiveNumber } from './numbers-formats.pipe';
+import { AccountamountFormaterPipe, AmountFormaterPipe, FormatAmountPipe, GetBalanceLetter, ParseInt, PositiveNumber } from './numbers-formats.pipe';
 import { ParseDatePipe, TimeAgoPipe, ParseMonthPipe, DateTimePipe } from './parse-date.pipe';
 import { SafeWebContentPipe, SafeRessourceContentPipe, CheckScriptsPipe } from './safe-web-content.pipe';
 
@@ -18,7 +18,8 @@ import { SafeWebContentPipe, SafeRessourceContentPipe, CheckScriptsPipe } from '
     DateTimePipe,
     AmountFormaterPipe,
     ParseInt,
-    AccountamountFormaterPipe
+    AccountamountFormaterPipe,
+    GetBalanceLetter
   ],
   exports: [
     FormatAmountPipe,
@@ -32,7 +33,8 @@ import { SafeWebContentPipe, SafeRessourceContentPipe, CheckScriptsPipe } from '
     DateTimePipe,
     AmountFormaterPipe,
     ParseInt,
-    AccountamountFormaterPipe
+    AccountamountFormaterPipe,
+    GetBalanceLetter
   ]
 })
 export class CustomPipesModule {}

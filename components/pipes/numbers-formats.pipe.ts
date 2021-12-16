@@ -22,6 +22,7 @@ export class FormatAmountPipe implements PipeTransform {
     decimal: any | number = 0,
     separator: string = " "
   ): any {
+    if(value == 0) { return 0;}
     return numberToAmountFormat(value, decimal, separator);
   }
 }
@@ -63,5 +64,18 @@ export class PositiveNumber implements PipeTransform {
 export class ParseInt implements PipeTransform {
   transform(value: string): number {
     return parseInt(value, 10);
+  }
+}
+
+@Pipe({ name: "getBalanceLetter" })
+export class GetBalanceLetter implements PipeTransform {
+  transform(value: number): string {
+    if(value > 0){
+      return "D";
+    } else if(value < 0){
+      return "C";
+    } else {
+      return "";
+    }
   }
 }
