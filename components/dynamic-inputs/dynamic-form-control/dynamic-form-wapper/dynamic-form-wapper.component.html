@@ -2,18 +2,37 @@
   <ng-container *ngIf="!isFormGroup(form)">
     <div class="form" *ngIf="componentFormGroup">
       <div class="form form-container clr-row" *ngIf="componentFormGroup">
-        <ng-container *ngIf="form?.controlConfigs && asArray(form?.controlConfigs).length > 0">
+        <ng-container
+          *ngIf="
+            form?.controlConfigs && asArray(form?.controlConfigs).length > 0
+          "
+        >
           <ng-container *ngFor="let value of form?.controlConfigs">
-            <app-dynamic-inputs (inputKeyUp)="inputKeyUp.emit($event)" (inputKeyDown)="inputKeyDown.emit($event)"
-              (inputBlur)="inputBlur.emit($event)" (inputKeypress)="inputKeypress.emit($event)"
-              (fileAdded)="fileAdded.emit($event)" (fileRemoved)="fileRemoved.emit($event)"
-              [class]="getControlContainerClass(value?.containerClass)" (multiSelectItemRemove)="
-                  controlItemRemoved.emit({ event: $event, control: value })" (valueChange)="
-                  handleControlChanges({ event: $event, controlName: value.formControlName }, bindings)"
-              [listenForChanges]="shouldListenforChange(value.formControlName, bindings)" [hidden]="value.hidden"
-              [control]="componentFormGroup.controls[value.formControlName]" [inputConfig]="value"
-              [listItems]="value.items">
-            </app-dynamic-inputs>
+            <app-dynamic-inputs
+              (inputKeyUp)="inputKeyUp.emit($event)"
+              (inputKeyDown)="inputKeyDown.emit($event)"
+              (inputBlur)="inputBlur.emit($event)"
+              (inputKeypress)="inputKeypress.emit($event)"
+              (fileAdded)="fileAdded.emit($event)"
+              (fileRemoved)="fileRemoved.emit($event)"
+              [class]="getControlContainerClass(value?.containerClass)"
+              (multiSelectItemRemove)="
+                controlItemRemoved.emit({ event: $event, control: value })
+              "
+              (valueChange)="
+                handleControlChanges(
+                  { event: $event, controlName: value.formControlName },
+                  bindings
+                )
+              "
+              [listenForChanges]="
+                shouldListenforChange(value.formControlName, bindings)
+              "
+              [hidden]="value.hidden"
+              [control]="componentFormGroup.controls[value.formControlName]"
+              [inputConfig]="value"
+              [listItems]="value.items"
+            ></app-dynamic-inputs>
           </ng-container>
         </ng-container>
       </div>
@@ -22,37 +41,71 @@
   <!-- Load form with group of forms -->
   <ng-container *ngIf="isFormGroup(form)">
     <div class="form">
-        <div class="form form-container clr-row">
-          <!-- Loop through the forms in the formArray of the formrgoups -->
-          <ng-container *ngIf="form?.forms && form?.forms.length > 0">
-            <ng-container *ngFor="let item of form?.forms; let i = index">
-              <app-dynamic-inputs (inputKeyUp)="inputKeyUp.emit($event)" (inputKeyDown)="inputKeyDown.emit($event)"
-                (inputBlur)="inputBlur.emit($event)" (inputKeypress)="inputKeypress.emit($event)"
-                (fileAdded)="fileAdded.emit($event)" (fileRemoved)="fileRemoved.emit($event)"
-                *ngFor="let value of item.controlConfigs" [class]="getControlContainerClass(value?.containerClass)"
-                (multiSelectItemRemove)="
-                  controlItemRemoved.emit({ event: $event, control: value }) " (valueChange)="
-                  handleControlChanges({ event: $event, controlName: value.formControlName
-                  }, bindings)" [listenForChanges]="shouldListenforChange(value.formControlName, bindings)" [hidden]="value.hidden"
-                [control]="componentFormGroup.get(value.formControlName)" [inputConfig]="value" [listItems]="value.items">
-              </app-dynamic-inputs>
-            </ng-container>
-          </ng-container>
-          <ng-container *ngIf="form?.controlConfigs && asArray(form?.controlConfigs).length > 0">
-            <app-dynamic-inputs (inputKeyUp)="inputKeyUp.emit($event)" (inputKeyDown)="inputKeyDown.emit($event)"
-              (inputBlur)="inputBlur.emit($event)" (inputKeypress)="inputKeypress.emit($event)"
-              (fileAdded)="fileAdded.emit($event)" (fileRemoved)="fileRemoved.emit($event)"
-              *ngFor="let value of form?.controlConfigs" [class]="getControlContainerClass(value?.containerClass)"
+      <div class="form form-container clr-row">
+        <!-- Loop through the forms in the formArray of the formrgoups -->
+        <ng-container *ngIf="form?.forms && form?.forms.length > 0">
+          <ng-container *ngFor="let item of form?.forms; let i = index">
+            <app-dynamic-inputs
+              (inputKeyUp)="inputKeyUp.emit($event)"
+              (inputKeyDown)="inputKeyDown.emit($event)"
+              (inputBlur)="inputBlur.emit($event)"
+              (inputKeypress)="inputKeypress.emit($event)"
+              (fileAdded)="fileAdded.emit($event)"
+              (fileRemoved)="fileRemoved.emit($event)"
+              *ngFor="let value of item.controlConfigs"
+              [class]="getControlContainerClass(value?.containerClass)"
               (multiSelectItemRemove)="
-                controlItemRemoved.emit({ event: $event, control: value })" (valueChange)="
-                handleControlChanges({event: $event, controlName: value.formControlName}, bindings)" [hidden]="value.hidden"
-              [listenForChanges]="shouldListenforChange(value.formControlName, bindings)"
-              [control]="componentFormGroup.controls[value.formControlName]" [inputConfig]="value"
-              [listItems]="value.items">
-            </app-dynamic-inputs>
+                controlItemRemoved.emit({ event: $event, control: value })
+              "
+              (valueChange)="
+                handleControlChanges(
+                  { event: $event, controlName: value.formControlName },
+                  bindings
+                )
+              "
+              [listenForChanges]="
+                shouldListenforChange(value.formControlName, bindings)
+              "
+              [hidden]="value.hidden"
+              [control]="componentFormGroup.get(value.formControlName)"
+              [inputConfig]="value"
+              [listItems]="value.items"
+            ></app-dynamic-inputs>
           </ng-container>
-        </div>
+        </ng-container>
+        <ng-container
+          *ngIf="
+            form?.controlConfigs && asArray(form?.controlConfigs).length > 0
+          "
+        >
+          <app-dynamic-inputs
+            (inputKeyUp)="inputKeyUp.emit($event)"
+            (inputKeyDown)="inputKeyDown.emit($event)"
+            (inputBlur)="inputBlur.emit($event)"
+            (inputKeypress)="inputKeypress.emit($event)"
+            (fileAdded)="fileAdded.emit($event)"
+            (fileRemoved)="fileRemoved.emit($event)"
+            *ngFor="let value of form?.controlConfigs"
+            [class]="getControlContainerClass(value?.containerClass)"
+            (multiSelectItemRemove)="
+              controlItemRemoved.emit({ event: $event, control: value })
+            "
+            (valueChange)="
+              handleControlChanges(
+                { event: $event, controlName: value.formControlName },
+                bindings
+              )
+            "
+            [hidden]="value.hidden"
+            [listenForChanges]="
+              shouldListenforChange(value.formControlName, bindings)
+            "
+            [control]="componentFormGroup.controls[value.formControlName]"
+            [inputConfig]="value"
+            [listItems]="value.items"
+          ></app-dynamic-inputs>
+        </ng-container>
+      </div>
     </div>
   </ng-container>
-
 </ng-container>

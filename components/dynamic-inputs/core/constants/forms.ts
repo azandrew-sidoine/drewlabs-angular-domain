@@ -714,7 +714,7 @@ export const STATIC_FORMS = {
             columns: null,
             rows: null,
             value: null,
-            requiredIf: 'type:date,select,textarea,number,text,phone,password,checkbox,radio,email,hidden,file,control_group'
+            requiredIf:  null// 'type:date,select,textarea,number,text,phone,password,checkbox,radio,email,hidden,file,control_group'
           },
           {
             label: 'Index',

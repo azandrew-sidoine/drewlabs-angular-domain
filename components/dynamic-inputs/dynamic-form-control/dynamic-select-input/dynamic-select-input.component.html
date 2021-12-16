@@ -1,18 +1,48 @@
 <div class="clr-form-control">
-  <label class="clr-control-label" *ngIf="showLabelAndDescription"
-    [for]="inputTypeHelper.asSelectInput(inputConfig).formControlName">
+  <label
+    class="clr-control-label"
+    *ngIf="showLabelAndDescription"
+    [for]="inputTypeHelper.asSelectInput(inputConfig).formControlName"
+  >
     {{ inputTypeHelper.asSelectInput(inputConfig).label }}
-    <small class="required-text" *ngIf="inputTypeHelper.asSelectInput(inputConfig).rules?.isRequired">(*)</small>
+    <small
+      class="required-text"
+      *ngIf="inputTypeHelper.asSelectInput(inputConfig).rules?.isRequired"
+    >
+      (*)
+    </small>
   </label>
   <!-- inputConfig?.optionsLabel -->
   <!-- inputConfig?.optionsValueIndex -->
   <ng-container *ngIf="inputItems$ | async as vm">
-    <ng-select [class]="inputConfig?.multiple ? '' : 'not-multiple'" [virtualScroll]="true" [items]="vm?.state"
-      [bindLabel]="'name'" [bindValue]="'value'" (focus)="onFocus()" [loading]="vm?.performingAction"
-      [loadingText]="'loadingText'|translate" [multiple]="inputConfig.multiple" [placeholder]="inputConfig?.placeholder"
-      [formControl]="control" [groupBy]="'type'" [clearable]="true" (remove)="multiSelectItemRemove.emit($event)"
-      (change)="inputSelect.emit({formcontrolname: inputConfig?.formControlName, value: $event})">
-      <ng-template ng-option-tmp let-item="item" let-index="index" let-item$="item$">
+    <ng-select
+      [class]="inputConfig?.multiple ? '' : 'not-multiple'"
+      [virtualScroll]="true"
+      [items]="vm?.state"
+      [bindLabel]="'name'"
+      [bindValue]="'value'"
+      (focus)="onFocus()"
+      [loading]="vm?.performingAction"
+      [loadingText]="'loadingText' | translate"
+      [multiple]="inputConfig.multiple"
+      [placeholder]="inputConfig?.placeholder"
+      [formControl]="control"
+      [groupBy]="'type'"
+      [clearable]="true"
+      (remove)="multiSelectItemRemove.emit($event)"
+      (change)="
+        inputSelect.emit({
+          formcontrolname: inputConfig?.formControlName,
+          value: $event
+        })
+      "
+    >
+      <ng-template
+        ng-option-tmp
+        let-item="item"
+        let-index="index"
+        let-item$="item$"
+      >
         <div>
           <label class="form-check-label ml-2">
             {{ item?.name }}
@@ -21,8 +51,15 @@
       </ng-template>
     </ng-select>
   </ng-container>
-  <clr-control-error class="field-has-error" *ngIf="control.hasError('required') && control.touched"><span
-      [translate]="'validation.required'"></span></clr-control-error>
-  <clr-control-helper *ngIf="inputConfig.descriptionText && showLabelAndDescription"><span
-      [innerHTML]="inputConfig.descriptionText | safeWebContent"></span></clr-control-helper>
+  <clr-control-error
+    class="field-has-error"
+    *ngIf="control.hasError('required') && control.touched"
+  >
+    <span [translate]="'validation.required'"></span>
+  </clr-control-error>
+  <clr-control-helper
+    *ngIf="inputConfig.descriptionText && showLabelAndDescription"
+  >
+    <span [innerHTML]="inputConfig.descriptionText | safeWebContent"></span>
+  </clr-control-helper>
 </div>
