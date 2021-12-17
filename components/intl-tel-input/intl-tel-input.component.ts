@@ -23,7 +23,6 @@ import { createSubject } from '../../rxjs/helpers';
 import { takeUntil, tap, distinctUntilChanged } from 'rxjs/operators';
 import { isEmpty } from 'lodash';
 import { createStateful } from '../../rxjs/helpers/creator-functions';
-import { Log } from '../../utils/logger';
 
 export class PhoneNumberValidator {
   // tslint:disable-next-line: typedef
@@ -60,22 +59,21 @@ export class PhoneNumberValidator {
   providers: []
 })
 export class IntlTelInputComponent implements OnInit, OnDestroy {
-  public phoneControl: FormControl;
+  phoneControl: FormControl;
   @Input() control: FormControl;
   @Output() controlChange: EventEmitter<string> = new EventEmitter<string>();
   @Input() required = false;
   @Input() allowDropdown = true;
   @Input() initialCountry: string;
   @Input() controlClass: string;
-  @Input() preferredCountries: Array<string> = [];
+  @Input() preferredCountries: string[] = [];
   @ViewChild('phoneControlElement', { static: true })
   phoneControlElement: ElementRef;
   @ViewChild('clrDropdown', { static: true }) clrDropdown: ElementRef;
-
   @Input() tabIndex: number;
 
-  allCountries: Array<Country> = [];
-  preferredCountriesInDropDown: Array<Country> = [];
+  allCountries: Country[] = [];
+  preferredCountriesInDropDown: Country[] = [];
   selectedCountry: Country = new Country();
 
   private _destroy$ = createSubject();
@@ -140,7 +138,7 @@ export class IntlTelInputComponent implements OnInit, OnDestroy {
     this.control.valueChanges
       .pipe(
         distinctUntilChanged(),
-        takeUntil(this._destroy$),
+        takeUntil(this._destroy$)
       )
       .subscribe((state) => {
         if (this.control.status.toLowerCase() === 'disabled') {
@@ -175,7 +173,6 @@ export class IntlTelInputComponent implements OnInit, OnDestroy {
 
   private _initializePhoneNumberControl(isControlDisabled = false): void {
     this.phoneControl = new FormControl({ value: null, disabled: isControlDisabled });
-    // Set the initial country to show
     if (isDefined(this.control.value)) {
       this.setPhoneControlValue(this.control.value.toString());
     } else if (this.initialCountry) {

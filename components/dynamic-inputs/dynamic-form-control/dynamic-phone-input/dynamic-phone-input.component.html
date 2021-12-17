@@ -1,16 +1,39 @@
 <div class="clr-form-control">
-  <label class="clr-control-label" *ngIf="showLabelAndDescription"
-    [for]="inputTypeHelper.asPhoneInput(inputConfig).formControlName">{{ inputTypeHelper.asPhoneInput(inputConfig).label }}
-    <span class="required-text"
-      *ngIf="inputTypeHelper.asPhoneInput(inputConfig).rules?.isRequired">(*)</span></label>
+  <label
+    class="clr-control-label"
+    *ngIf="showLabelAndDescription"
+    [for]="inputTypeHelper.asPhoneInput(inputConfig).formControlName"
+  >
+    {{ inputTypeHelper.asPhoneInput(inputConfig).label }}
+    <span
+      class="required-text"
+      *ngIf="inputTypeHelper.asPhoneInput(inputConfig).rules?.isRequired"
+    >
+      (*)
+    </span>
+  </label>
   <div class="clr-control-container">
     <div class="clr-input-wrapper">
-      <app-intl-tel-input [tabIndex]="inputConfig?.formControlIndex" [controlClass]="inputTypeHelper.asDateInput(inputConfig).classes" [control]="control"
-        [disabled]="inputConfig.disabled" [preferredCountries]="['tg', 'bj', 'gh']" [initialCountry]="'tg'">
-      </app-intl-tel-input>
+      <app-intl-tel-input
+        [tabIndex]="inputConfig?.formControlIndex"
+        [controlClass]="inputTypeHelper.asPhoneInput(inputConfig).classes"
+        [control]="control"
+        [required]="inputConfig?.rules?.isRequired"
+        [disabled]="inputConfig.disabled"
+        [preferredCountries]="['tg', 'bj', 'gh']"
+        [initialCountry]="'tg'"
+      ></app-intl-tel-input>
     </div>
-    <input [tabIndex]="inputConfig?.formControlIndex" [class]="inputTypeHelper.asPhoneInput(inputConfig).classes" [formControl]="control" type="hidden" />
+    <input
+      [tabIndex]="inputConfig?.formControlIndex"
+      [class]="inputTypeHelper.asPhoneInput(inputConfig).classes"
+      [formControl]="control"
+      type="hidden"
+    />
   </div>
-  <clr-control-helper *ngIf="inputConfig.descriptionText && showLabelAndDescription">
-    <span [innerHTML]="inputConfig.descriptionText | safeWebContent"></span></clr-control-helper>
+  <clr-control-helper
+    *ngIf="inputConfig.descriptionText && showLabelAndDescription"
+  >
+    <span [innerHTML]="inputConfig.descriptionText | safeWebContent"></span>
+  </clr-control-helper>
 </div>
