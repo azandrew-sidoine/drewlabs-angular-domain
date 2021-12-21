@@ -49,28 +49,9 @@
     autocomplete="off"
     (keypress)="onInputKeyPress($event)"
     [formControl]="phoneControl"
+    (blur)="onPhoneControlBlured($event)"
     [placeholder]="selectedCountry.placeHolder"
     #focusable
   />
   <input [tabIndex]="-1" type="hidden" [formControl]="control" />
 </div>
-<clr-control-error
-  class="field-has-error"
-  *ngIf="
-    control.hasError('required') && (phoneControl.touched || control.touched)
-  "
->
-  <span [translate]="'validation.required'"></span>
-</clr-control-error>
-<clr-control-error
-  class="field-has-error"
-  *ngIf="
-    control.hasError('invalidPhoneNumber') &&
-    (phoneControl.touched || control.touched)
-  "
->
-  <span
-    [translate]="'validation.phone'"
-    [translateParams]="{ value: '(Ex: 228 90050505)' }"
-  ></span>
-</clr-control-error>

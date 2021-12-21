@@ -1,46 +1,45 @@
 .required-text,
 .field-has-error {
-    color: rgb(241, 50, 50);
-    line-height: 1rem;
+  color: rgb(241, 50, 50);
+  line-height: 1rem;
 }
 
 small.field-has-error {
-    display: block;
+  display: block;
 }
 
 li.country:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .dropdown-toggle::after {
-    display: none;
+  display: none;
 }
 
 .intl-tel-input {
-    width: 100%;
+  width: 100%;
+  display: flex;
 }
 
 .clr-input {
-    width: 80% !important;
-    /* max-width: 100%; */
+  flex-grow: 1;
 }
 
-#phone {
+/* #phone {
     width: 75%;
-}
+} */
 
 .clr-dropdown-menu {
-    max-height: 280px;
-    width: 100%;
+  max-height: 280px;
+  width: 100%;
 }
 
 .countries-viewport {
-    height: 200px;
-    width: auto;
-    overflow-x: hidden;
+  height: 200px;
+  width: auto;
+  overflow-x: hidden;
 }
 
-
-/* .dropdown-menu .btn, .dropdown-menu .dropdown-item {
-  padding: .1rem 1rem 1rem 1rem !important;
-} */
+.dropdown button.btn.btn-sm {
+  height: 1.468rem;
+}

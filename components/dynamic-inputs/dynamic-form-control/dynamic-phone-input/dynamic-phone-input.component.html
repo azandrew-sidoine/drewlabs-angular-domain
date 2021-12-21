@@ -24,16 +24,25 @@
         [initialCountry]="'tg'"
       ></app-intl-tel-input>
     </div>
-    <input
-      [tabIndex]="inputConfig?.formControlIndex"
-      [class]="inputTypeHelper.asPhoneInput(inputConfig).classes"
-      [formControl]="control"
-      type="hidden"
-    />
+    <clr-control-error
+      class="field-has-error"
+      *ngIf="control.hasError('required') && control.touched"
+    >
+      <span [translate]="'validation.required'"></span>
+    </clr-control-error>
+    <clr-control-error
+      class="field-has-error"
+      *ngIf="control.hasError('invalidPhoneNumber')"
+    >
+      <span
+        [translate]="'validation.phone'"
+        [translateParams]="{ value: '(Ex: 228 90050505)' }"
+      ></span>
+    </clr-control-error>
+    <clr-control-helper
+      *ngIf="inputConfig.descriptionText && showLabelAndDescription"
+    >
+      <span [innerHTML]="inputConfig.descriptionText | safeWebContent"></span>
+    </clr-control-helper>
   </div>
-  <clr-control-helper
-    *ngIf="inputConfig.descriptionText && showLabelAndDescription"
-  >
-    <span [innerHTML]="inputConfig.descriptionText | safeWebContent"></span>
-  </clr-control-helper>
 </div>
