@@ -11,7 +11,7 @@ import { createSubject } from '../../../rxjs/helpers';
   selector: 'app-alert',
   template: `
     <div *ngIf="alertTypeClass$ | async as alertTypeClass" [class]="alertTypeClass" role="alert">
-      <div class="alert-items">
+      <div class="alert-items hide-for-print">
         <div class="alert-item static">
           <ng-container *ngIf="showIcon">
             <div class="alert-icon-wrapper" [ngSwitch]="alertType">

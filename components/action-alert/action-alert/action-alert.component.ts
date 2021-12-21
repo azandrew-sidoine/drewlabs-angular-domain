@@ -7,7 +7,7 @@ import { AppUIStoreManager } from 'src/app/lib/domain/helpers/app-ui-store-manag
   // tslint:disable-next-line: component-selector
   selector: 'drewlabs-action-alert',
   template: `
-    <div class="text-center">
+    <div class="text-center hide-for-print">
       <ng-container *ngIf="vm$ | async as vm">
       <app-alert
         *ngIf="vm?.alertState?.showAlert"
