@@ -7,6 +7,7 @@ import {
   OnDestroy,
   ViewChild,
   ElementRef,
+  AfterViewInit,
 } from "@angular/core";
 import { Country } from "./country.model";
 import { IntlTelInputService } from "./intl-tel-input.service";
@@ -23,6 +24,7 @@ import { createSubject } from "../../rxjs/helpers";
 import { takeUntil, tap, distinctUntilChanged } from "rxjs/operators";
 import { isEmpty } from "lodash";
 import { createStateful } from "../../rxjs/helpers/creator-functions";
+import { doLog } from "../../rxjs/operators";
 
 export class PhoneNumberValidator {
   // tslint:disable-next-line: typedef
@@ -57,9 +59,8 @@ export class PhoneNumberValidator {
   selector: "app-intl-tel-input",
   templateUrl: "./intl-tel-input.component.html",
   styleUrls: ["./intl-tel-input.component.css"],
-  providers: [],
 })
-export class IntlTelInputComponent implements OnInit, OnDestroy {
+export class IntlTelInputComponent implements OnInit, AfterViewInit, OnDestroy {
   phoneControl: FormControl;
   @Input() control: FormControl;
   @Output() controlChange: EventEmitter<string> = new EventEmitter<string>();
@@ -68,9 +69,8 @@ export class IntlTelInputComponent implements OnInit, OnDestroy {
   @Input() initialCountry: string;
   @Input() controlClass: string;
   @Input() preferredCountries: string[] = [];
-  @ViewChild("phoneControlElement", { static: true })
+  @ViewChild("phoneControlElement", { static: false })
   phoneControlElement: ElementRef;
-  @ViewChild("clrDropdown", { static: true }) clrDropdown: ElementRef;
   @Input() tabIndex: number;
 
   allCountries: Country[] = [];
@@ -125,32 +125,43 @@ export class IntlTelInputComponent implements OnInit, OnDestroy {
       this._disableState$.next({ disabled: true });
     }
     // Set the preferred countries
+  }
+
+  ngAfterViewInit(): void {
     this.phoneControl.valueChanges
-      .pipe(distinctUntilChanged(), takeUntil(this._destroy$))
-      .subscribe((state) => {
-        if (isEmpty(state)) {
-          this.control.setErrors({ invalidPhoneNumber: null });
-          // Set the control value to null
-          this.control.setValue(null);
-        }
-        if (state) {
-          this.setControlValue(this.selectedCountry.dialCode, state);
-        }
-      });
+      .pipe(
+        distinctUntilChanged(),
+        takeUntil(this._destroy$),
+        tap((state) => {
+          if (isEmpty(state)) {
+            this.control.setErrors({ invalidPhoneNumber: null });
+            // Set the control value to null
+            this.control.setValue(undefined);
+          }
+          if (state) {
+            this.setControlValue(this.selectedCountry.dialCode, state);
+          }
+        })
+      )
+      .subscribe();
     this.control.valueChanges
-      .pipe(distinctUntilChanged(), takeUntil(this._destroy$))
-      .subscribe((state) => {
-        if (this.control.status.toLowerCase() === "disabled") {
-          this._disableState$.next({ disabled: true });
-        } else {
-          this._disableState$.next({ disabled: false });
-        }
-        if (isDefined(state)) {
-          this.setPhoneControlValue(state);
-        } else {
-          this.phoneControl.setValue(null);
-        }
-      });
+      .pipe(
+        distinctUntilChanged(),
+        takeUntil(this._destroy$),
+        tap((state) => {
+          if (this.control.status.toLowerCase() === "disabled") {
+            this._disableState$.next({ disabled: true });
+          } else {
+            this._disableState$.next({ disabled: false });
+          }
+          if (isDefined(state)) {
+            this.setPhoneControlValue(state);
+          } else {
+            this.phoneControl.setValue(undefined);
+          }
+        })
+      )
+      .subscribe();
   }
 
   public onCountrySelect(country: Country): void {
@@ -172,7 +183,7 @@ export class IntlTelInputComponent implements OnInit, OnDestroy {
 
   private _initializePhoneNumberControl(isControlDisabled = false): void {
     this.phoneControl = new FormControl({
-      value: null,
+      value: undefined,
       disabled: isControlDisabled,
     });
     if (isDefined(this.control.value)) {
