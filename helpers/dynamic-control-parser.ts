@@ -46,9 +46,9 @@ export class DynamicControlParser {
     applyUniqueValidations: boolean = true
   ) {
     if (!this.typeHelper.isDefined(form)) {
-      return null;
+      return undefined;
     }
-    const c = [...form.controlConfigs as Array<IHTMLFormControl>];
+    const c = [...form.controlConfigs as [IHTMLFormControl]];
     if (this.typeHelper.isFormGroup(form)) {
       (form as IDynamicForm).forms.forEach((v) => {
         c.push(...(v.controlConfigs ? v.controlConfigs as Array<IHTMLFormControl> : []));

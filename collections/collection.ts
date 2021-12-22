@@ -1,7 +1,7 @@
 import { ICollection } from '../contracts/collection-interface';
 import { isDefined } from '../utils/types/type-utils';
 
-export class Collection<T> implements ICollection<T> {
+export class Collection<T> implements ICollection<T>, Iterable<T> {
   protected items: { [index: string]: T } = {};
   private counter = 0;
 
@@ -98,7 +98,7 @@ export class Collection<T> implements ICollection<T> {
     return values;
   }
 
-  [Symbol.iterator]() {
+  *[Symbol.iterator] () {
     return this.values()[Symbol.iterator]();
   }
 
