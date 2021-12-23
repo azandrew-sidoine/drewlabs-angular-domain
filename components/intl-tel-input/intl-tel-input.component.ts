@@ -6,23 +6,25 @@ import {
   EventEmitter,
   OnDestroy,
   ViewChild,
-  ElementRef
-} from '@angular/core';
-import { Country } from './country.model';
-import { IntlTelInputService } from './intl-tel-input.service';
+  ElementRef,
+  AfterViewInit,
+} from "@angular/core";
+import { Country } from "./country.model";
+import { IntlTelInputService } from "./intl-tel-input.service";
 import {
   FormControl,
   Validators,
   ValidatorFn,
-  AbstractControl
-} from '@angular/forms';
-import * as _ from 'google-libphonenumber';
-import { PhoneNumberUtils } from './phone-number-utils';
-import { isDefined } from '../../utils';
-import { createSubject } from '../../rxjs/helpers';
-import { takeUntil, tap, distinctUntilChanged } from 'rxjs/operators';
-import { isEmpty } from 'lodash';
-import { createStateful } from '../../rxjs/helpers/creator-functions';
+  AbstractControl,
+} from "@angular/forms";
+import * as _ from "google-libphonenumber";
+import { PhoneNumberUtils } from "./phone-number-utils";
+import { isDefined } from "../../utils";
+import { createSubject } from "../../rxjs/helpers";
+import { takeUntil, tap, distinctUntilChanged } from "rxjs/operators";
+import { isEmpty } from "lodash";
+import { createStateful } from "../../rxjs/helpers/creator-functions";
+import { doLog } from "../../rxjs/operators";
 
 export class PhoneNumberValidator {
   // tslint:disable-next-line: typedef
@@ -39,10 +41,11 @@ export class PhoneNumberValidator {
       if (!isDefined(control.value)) {
         return null;
       }
-      threatedInput = PhoneNumberUtils.sanitize(String(control.value) as string);
-      const phoneNumber = googlePhonelibInstance.parseAndKeepRawInput(
-        threatedInput
+      threatedInput = PhoneNumberUtils.sanitize(
+        String(control.value) as string
       );
+      const phoneNumber =
+        googlePhonelibInstance.parseAndKeepRawInput(threatedInput);
       if (!googlePhonelibInstance.isValidNumber(phoneNumber)) {
         return { invalidPhoneNumber: true };
       }
@@ -53,28 +56,25 @@ export class PhoneNumberValidator {
   }
 }
 @Component({
-  selector: 'app-intl-tel-input',
-  templateUrl: './intl-tel-input.component.html',
-  styleUrls: ['./intl-tel-input.component.css'],
-  providers: []
+  selector: "app-intl-tel-input",
+  templateUrl: "./intl-tel-input.component.html",
+  styleUrls: ["./intl-tel-input.component.css"],
 })
-export class IntlTelInputComponent implements OnInit, OnDestroy {
-  public phoneControl: FormControl;
+export class IntlTelInputComponent implements OnInit, AfterViewInit, OnDestroy {
+  phoneControl: FormControl;
   @Input() control: FormControl;
   @Output() controlChange: EventEmitter<string> = new EventEmitter<string>();
   @Input() required = false;
   @Input() allowDropdown = true;
   @Input() initialCountry: string;
   @Input() controlClass: string;
-  @Input() preferredCountries: Array<string> = [];
-  @ViewChild('phoneControlElement', { static: true })
+  @Input() preferredCountries: string[] = [];
+  @ViewChild("phoneControlElement", { static: false })
   phoneControlElement: ElementRef;
-  @ViewChild('clrDropdown', { static: true }) clrDropdown: ElementRef;
-
   @Input() tabIndex: number;
 
-  allCountries: Array<Country> = [];
-  preferredCountriesInDropDown: Array<Country> = [];
+  allCountries: Country[] = [];
+  preferredCountriesInDropDown: Country[] = [];
   selectedCountry: Country = new Country();
 
   private _destroy$ = createSubject();
@@ -84,15 +84,21 @@ export class IntlTelInputComponent implements OnInit, OnDestroy {
   }
   private _disableState$ = createStateful({ disabled: false });
   disableState$ = this._disableState$.pipe(
-    tap(state => {
-      if (state.disabled && (this.phoneControl.status.toLowerCase() !== 'disabled')) {
+    tap((state) => {
+      if (
+        state.disabled &&
+        this.phoneControl.status.toLowerCase() !== "disabled"
+      ) {
         this.phoneControl.disable({ onlySelf: true });
       }
-      if (!state.disabled && (this.phoneControl.status.toLowerCase() === 'disabled')) {
+      if (
+        !state.disabled &&
+        this.phoneControl.status.toLowerCase() === "disabled"
+      ) {
         this.phoneControl.enable({ onlySelf: true });
       }
     })
-  )
+  );
 
   constructor(private intelInputService: IntlTelInputService) {
     this.allCountries = this.intelInputService.fetchCountries()
@@ -102,64 +108,67 @@ export class IntlTelInputComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.preferredCountries.length > 0) {
-      this.preferredCountries.forEach(iso2 => {
-        const preferredCountry = this.allCountries.filter(c => {
+      this.preferredCountries.forEach((iso2) => {
+        const preferredCountry = this.allCountries.filter((c) => {
           return c.iso2 === iso2;
         });
         // tslint:disable-next-line:no-unused-expression
         preferredCountry[0]
           ? this.preferredCountriesInDropDown.push(preferredCountry[0])
           : // tslint:disable-next-line:no-unused-expression
-          null;
+            null;
       });
     }
-    const isControlDisabled = this.control.status.toLowerCase() === 'disabled';
+    const isControlDisabled = this.control.status.toLowerCase() === "disabled";
     this._initializePhoneNumberControl(isControlDisabled);
-    if (this.control.status.toLowerCase() === 'disabled') {
+    if (this.control.status.toLowerCase() === "disabled") {
       this._disableState$.next({ disabled: true });
     }
     // Set the preferred countries
+  }
+
+  ngAfterViewInit(): void {
     this.phoneControl.valueChanges
       .pipe(
         distinctUntilChanged(),
-        takeUntil(this._destroy$)
-      )
-      .subscribe(
-        state => {
+        takeUntil(this._destroy$),
+        tap((state) => {
           if (isEmpty(state)) {
             this.control.setErrors({ invalidPhoneNumber: null });
             // Set the control value to null
-            this.control.setValue(null);
+            this.control.setValue(undefined);
           }
           if (state) {
             this.setControlValue(this.selectedCountry.dialCode, state);
           }
-        }
-      );
+        })
+      )
+      .subscribe();
     this.control.valueChanges
       .pipe(
         distinctUntilChanged(),
         takeUntil(this._destroy$),
+        tap((state) => {
+          if (this.control.status.toLowerCase() === "disabled") {
+            this._disableState$.next({ disabled: true });
+          } else {
+            this._disableState$.next({ disabled: false });
+          }
+          if (isDefined(state)) {
+            this.setPhoneControlValue(state);
+          } else {
+            this.phoneControl.setValue(undefined);
+          }
+        })
       )
-      .subscribe((state) => {
-        if (this.control.status.toLowerCase() === 'disabled') {
-          this._disableState$.next({ disabled: true });
-        } else {
-          this._disableState$.next({ disabled: false });
-        }
-        if (isDefined(state)) {
-          this.setPhoneControlValue(state);
-        } else {
-          this.phoneControl.setValue(null);
-        }
-      });
+      .subscribe();
   }
 
   public onCountrySelect(country: Country): void {
     this.selectedCountry = country;
     this.setControlValue(
       country.dialCode,
-      this.phoneControl.value ? this.phoneControl.value : ''
+      this.phoneControl.value ? this.phoneControl.value : ""
     );
     this.phoneControlElement.nativeElement.focus();
   }
@@ -173,8 +182,10 @@ export class IntlTelInputComponent implements OnInit, OnDestroy {
   }
 
   private _initializePhoneNumberControl(isControlDisabled = false): void {
-    this.phoneControl = new FormControl({ value: null, disabled: isControlDisabled });
-    // Set the initial country to show
+    this.phoneControl = new FormControl({
+      value: undefined,
+      disabled: isControlDisabled,
+    });
     if (isDefined(this.control.value)) {
       this.setPhoneControlValue(this.control.value.toString());
     } else if (this.initialCountry) {
@@ -190,11 +201,12 @@ export class IntlTelInputComponent implements OnInit, OnDestroy {
       }
     }
     // Setting validators on a control
-    const validators: Array<ValidatorFn> = [
-      PhoneNumberValidator.ValidatePhoneNumber
+    let validators: ValidatorFn[] = [
+      this.control.validator,
+      PhoneNumberValidator.ValidatePhoneNumber,
     ];
     if (this.required) {
-      validators.push(Validators.required);
+      validators = [...validators, Validators.required];
     }
     this.control.setValidators(validators);
     this.control.updateValueAndValidity({ onlySelf: true });
@@ -204,30 +216,39 @@ export class IntlTelInputComponent implements OnInit, OnDestroy {
     if (this.control.value === `${dialCode}${phoneNumber}`) {
       return;
     }
-    this.control.setValue(`${dialCode}${phoneNumber?.replace(/[\s\t\/\+\-]/g, '')}`);
+    this.control.setValue(
+      `${dialCode}${phoneNumber?.replace(/[\s\t\/\+\-]/g, "")}`
+    );
   }
 
   setPhoneControlValue(value: string): void {
     const controlState = value;
-    const tmpCountryCode: number = this.intelInputService.getCountryCode(controlState);
+    const tmpCountryCode: number =
+      this.intelInputService.getCountryCode(controlState);
     if (tmpCountryCode) {
       this.selectedCountry = this.allCountries.filter((c: Country) => {
-        return (
-          c.dialCode ===
-          tmpCountryCode.toString()
-        );
+        return c.dialCode === tmpCountryCode.toString();
       })[0];
       if (this.selectedCountry) {
-        const shortPhoneNumber = (String(controlState)).substring(
+        const shortPhoneNumber = String(controlState).substring(
           this.selectedCountry.dialCode.length
         );
-        const phoneControlValue = this.phoneControl.value?.replace(/[\s\t\/\+\-]/g, '');
+        const phoneControlValue = this.phoneControl.value?.replace(
+          /[\s\t\/\+\-]/g,
+          ""
+        );
         // Update the phone control value only
         // if it previous value is not equals to the new value
         if (shortPhoneNumber !== phoneControlValue) {
           this.phoneControl.setValue(shortPhoneNumber);
         }
       }
+    }
+  }
+
+  onPhoneControlBlured(event: Event) {
+    if (!this.control.touched) {
+      this.control.markAsTouched();
     }
   }
 
