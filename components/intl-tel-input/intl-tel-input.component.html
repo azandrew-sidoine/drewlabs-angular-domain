@@ -1,33 +1,57 @@
-<div class="intl-tel-input allow-dropdown" *ngIf="disableState$ | async as state">
+<div
+  class="intl-tel-input allow-dropdown"
+  *ngIf="disableState$ | async as state"
+>
   <clr-dropdown #clrDropdown>
-    <button [disabled]="state?.disabled" type="button" class="btn btn-sm btn-outline-primary" clrDropdownTrigger>
+    <button
+      [disabled]="state?.disabled"
+      type="button"
+      class="btn btn-sm btn-outline-primary"
+      clrDropdownTrigger
+    >
       +{{ selectedCountry?.dialCode }}
       <clr-icon shape="caret down"></clr-icon>
     </button>
-    <clr-dropdown-menu clrPosition="bottom-left" class="clr-dropdown-menu" *clrIfOpen>
-      <button *ngFor="let country of preferredCountriesInDropDown" clrDropdownItem type="button"
-        (click)="onCountrySelect(country)">
-        <span class="country-name">{{country.name}}</span>
-        <span class="dial-code">( +{{country?.dialCode}} )</span>
+    <clr-dropdown-menu
+      clrPosition="bottom-left"
+      class="clr-dropdown-menu"
+      *clrIfOpen
+    >
+      <button
+        *ngFor="let country of preferredCountriesInDropDown"
+        clrDropdownItem
+        type="button"
+        (click)="onCountrySelect(country)"
+      >
+        <span class="country-name">{{ country.name }}</span>
+        <span class="dial-code">( +{{ country?.dialCode }} )</span>
       </button>
       <div class="dropdown-divider"></div>
       <cdk-virtual-scroll-viewport class="countries-viewport" itemSize="20">
-        <button *cdkVirtualFor="let country of allCountries" type="button" clrDropdownItem
-          (click)="onCountrySelect(country)">
-          <span class="country-name">{{country?.name}}</span>
-          <span class="dial-code"> (+{{country?.dialCode}} )</span>
+        <button
+          *cdkVirtualFor="let country of allCountries"
+          type="button"
+          clrDropdownItem
+          (click)="onCountrySelect(country)"
+        >
+          <span class="country-name">{{ country?.name }}</span>
+          <span class="dial-code">(+{{ country?.dialCode }} )</span>
         </button>
       </cdk-virtual-scroll-viewport>
     </clr-dropdown-menu>
   </clr-dropdown>
-  <input [tabIndex]="tabIndex" #phoneControlElement type="tel" [class]="controlClass" autocomplete="off"
-    (keypress)="onInputKeyPress($event)" [formControl]="phoneControl" [placeholder]="selectedCountry.placeHolder"
-    #focusable />
+  <input
+    [tabIndex]="tabIndex"
+    #phoneControlElement
+    type="tel"
+    [required]="required"
+    [class]="controlClass"
+    autocomplete="off"
+    (keypress)="onInputKeyPress($event)"
+    [formControl]="phoneControl"
+    (blur)="onPhoneControlBlured($event)"
+    [placeholder]="selectedCountry.placeHolder"
+    #focusable
+  />
   <input [tabIndex]="-1" type="hidden" [formControl]="control" />
 </div>
-<clr-control-error class="field-has-error"
-  *ngIf="control.hasError('required') && (phoneControl.touched || control.touched)"><span
-    [translate]="'validation.required'"></span></clr-control-error>
-<clr-control-error class="field-has-error"
-  *ngIf="control.hasError('invalidPhoneNumber') && (phoneControl.touched || control.touched)"><span
-    [translate]="'validation.phone'" [translateParams]="{value: '(Ex: 228 90050505)'}"></span></clr-control-error>
