@@ -2,6 +2,7 @@ import { HandlerResult } from '../../rxjs/types';
 
 export interface IHttpResponse<T extends any>  extends HandlerResult<T> {
     statusCode: number;
+    success?: boolean;
     statusMessage?: string;
     errors?: string[]|object;
     errorMessage?: string;
