@@ -58,9 +58,13 @@ export class AuthModule {
           provide: 'AUTH_SERVER_HOST',
           useValue: config?.serverConfigs?.host || null
         },
+        // {
+        //   provide: 'AUTH_LOGIN_PATH',
+        //   useValue: config?.serverConfigs?.loginPath || 'auth/login'
+        // },
         {
           provide: 'AUTH_LOGIN_PATH',
-          useValue: config?.serverConfigs?.loginPath || 'auth/login'
+          useValue: config?.serverConfigs?.loginPath || 'login'
         },
         {
           provide: 'AUTH_LOGOUT_PATH',

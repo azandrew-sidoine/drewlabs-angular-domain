@@ -52,15 +52,19 @@ export const onAuthenticationResultEffect: LoginReponseHandlerFunc<LoginResponse
   return (source$: Observable<any>) => {
     return source$.pipe(
       map(state => {
+        console.log(state)
         let is2FactorAuthEnabled = false;
         let isAutenticated = false;
         const loginResponse = getLoginResponse(state);
+        console.log(loginResponse);
         if (drewlabsIsAuthenticationSuccessful(loginResponse)) {
           isAutenticated = true;
           // Check if is double authentication active
           const loginState = getLoginState(loginResponse);
+          console.log(loginState)
           if (!isDoubleAuthActive(loginState)) {
             is2FactorAuthEnabled = false;
+
             // Put user details to into app local storage
             tokenProvider.setToken(loginState.token);
             const authenticatedUser = getLoggedInUser(loginResponse);
