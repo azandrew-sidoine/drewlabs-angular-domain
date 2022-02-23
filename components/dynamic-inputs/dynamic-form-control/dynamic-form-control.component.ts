@@ -21,6 +21,7 @@ export interface FileFormControl {
   dataURL: string;
   extension?: string;
   type?: string;
+  name?: string;
 }
 @Component({
   selector: 'app-dynamic-inputs',

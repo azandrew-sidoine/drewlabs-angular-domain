@@ -88,7 +88,8 @@ export class DynamicFileInputComponent implements OnInit, OnDestroy {
             return {
               uuid: v.upload.uuid,
               dataURL: await readFileAsDataURI(v),
-              extension: (v.name as string).split('.')[(v.name as string).split('.').length - 1]
+              extension: (v.name as string).split('.')[(v.name as string).split('.').length - 1],
+              name:  (v.name).slice(0, (v.name).lastIndexOf('.'))
             } as FileFormControl;
           })
         ));
@@ -99,7 +100,8 @@ export class DynamicFileInputComponent implements OnInit, OnDestroy {
             {
               uuid: files[0].upload.uuid,
               dataURL: await readFileAsDataURI(files[0]),
-              extension: (files[0].name as string).split('.')[(files[0].name as string).split('.').length - 1]
+              extension: (files[0].name as string).split('.')[(files[0].name as string).split('.').length - 1],
+              name: (files[0].name).slice(0, (files[0].name).lastIndexOf('.'))
             } as FileFormControl
           );
           this.dropzoneContainer.disabled = true;
