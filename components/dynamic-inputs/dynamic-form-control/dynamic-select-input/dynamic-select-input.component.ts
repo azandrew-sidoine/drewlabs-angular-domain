@@ -115,11 +115,18 @@ export class DynamicSelectInputComponent implements OnDestroy {
         }),
         takeUntil(this._destroy$),
         tap(state => {
+          // console.log(state);
           this._inputItems$.next({ performingAction: false, state });
           this._actionSubject$.next(false);
         })
       ))
     ).subscribe();
+
+
+  }
+
+  ngOnInit(): void {
+    this.onFocus();
   }
 
   onFocus(): void {

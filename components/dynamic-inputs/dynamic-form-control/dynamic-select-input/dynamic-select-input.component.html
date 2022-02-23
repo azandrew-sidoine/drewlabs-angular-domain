@@ -12,6 +12,8 @@
       (*)
     </small>
   </label>
+  <!-- (focus)="onFocus()" -->
+
   <ng-container *ngIf="inputItems$ | async as vm">
     <ng-select
       [class]="inputConfig?.multiple ? '' : 'not-multiple'"
@@ -19,7 +21,6 @@
       [items]="vm?.state"
       [bindLabel]="'name'"
       [bindValue]="'value'"
-      (focus)="onFocus()"
       [loading]="vm?.performingAction"
       [loadingText]="'loadingText' | translate"
       [multiple]="inputConfig.multiple"
