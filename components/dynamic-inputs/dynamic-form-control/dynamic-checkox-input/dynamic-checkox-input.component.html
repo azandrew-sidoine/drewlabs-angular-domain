@@ -12,8 +12,7 @@
           [formControlName]="i" [value]="inputTypeHelper.asCheckBoxInput(inputConfig)?.items[i]?.value"
           class="clr-checkbox" />
         <label [for]="inputTypeHelper.asCheckBoxInput(inputConfig).formControlName + '_' + i" class="clr-control-label"
-          *ngIf="showLabelAndDescription"
-          [for]="'clr-checkbox-control-' + i">{{ inputTypeHelper.asCheckBoxInput(inputConfig).items[i].description }}</label>
+          *ngIf="showLabelAndDescription">{{ inputTypeHelper.asCheckBoxInput(inputConfig).items[i].description }}</label>
       </div>
     </div>
     <clr-control-error class="field-has-error" *ngIf="control.hasError('required') && control.touched"><span
