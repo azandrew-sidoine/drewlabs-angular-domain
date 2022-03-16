@@ -9,6 +9,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { doLog } from '../../rxjs/operators';
 import { UIStateStatusCode } from '../../contracts/ui-state';
 import { isBadRequest, isServerError } from './helpers';
+import { tap } from 'rxjs/operators';
 
 @Injectable()
 export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHttpResponse<any>> {
@@ -25,8 +26,14 @@ export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHt
   create(path: string, body: any, params?: object) {
     return this.httpClient.post(path, body, params)
       .pipe(
+
         doLog(`/POST ${path} - Request response: `),
-        mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
+        tap(data => {
+          console.log(data);
+        }
+        ),
+        //mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null)),
+
       ) as Observable<IHttpResponse<any>>;
   }
 
@@ -76,7 +83,11 @@ export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHt
     return this.httpClient.put(`${path}/${id}`, body, params)
       .pipe(
         doLog(`/PUT ${path}/${id} - Request response: `),
-        mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
+        tap(data => {
+          console.log(data);
+        }
+        ),
+        // mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
       ) as Observable<IHttpResponse<any>>;
   }
 
@@ -100,7 +111,11 @@ export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHt
     return this.httpClient.delete(`${path}/${id}`, params)
       .pipe(
         doLog(`/DELETE ${path}/${id} - Request response: `),
-        mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
+        tap(data => {
+          console.log(data);
+        }
+        ),
+        // mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
       ) as Observable<IHttpResponse<any>>;
   }
 

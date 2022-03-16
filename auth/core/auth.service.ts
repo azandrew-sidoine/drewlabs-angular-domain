@@ -40,6 +40,9 @@ const initalState: AuthState = {
   providedIn: 'root'
 })
 export class AuthService implements OnDestroy {
+  //slim
+  private roles : Array<any> = [];
+  private userAuthenticated : UserStorageProvider;
 
   // tslint:disable-next-line: variable-name
   private _destroy$ = createSubject<{}>();
@@ -233,5 +236,33 @@ export class AuthService implements OnDestroy {
   }
 
   getAuthorizationToken = () => this.oAuthTokenProvider.token;
+
+
+
+
+  // slim auth
+  private jwtToken :string;
+
+  getUserAuthenticated(){
+    return this.userAuthenticated;
+  }
+  isAdmin(){
+    for (let r of this.roles){
+      if (r.authority == 'ADMIN') return true;
+    }
+    return false;
+  }
+
+  isDirecteur(){
+     for (let r of this.roles){
+       if (r.authority == 'DIRECTEUR') return true;
+     }
+     return false;
+   }
+   loadToken(){
+    this.jwtToken = localStorage.getItem('token');
+    return this.jwtToken;
+  }
+
 
 }
