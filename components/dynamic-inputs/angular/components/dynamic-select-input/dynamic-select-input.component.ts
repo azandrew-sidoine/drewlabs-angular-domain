@@ -8,19 +8,17 @@ import {
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { createStateful, createSubject } from '../../../../../rxjs/helpers';
-import { DrewlabsRessourceServerClient } from '../../../../../http/core';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import {
-  getResponseDataFromHttpResponse,
   httpHost,
 } from '../../../../../http/helpers';
 import { controlBindingsSetter } from '../../../core/helpers';
-import { doLog } from '../../../../../rxjs/operators';
 import { DynamicInputTypeHelper } from '../../services/input-type.service';
 import { SelectInput } from '../../../core/types/select';
 import { InputEventArgs } from '../../types/dynamic-inputs';
 import { JSObject } from '../../../../../utils';
 import { API_BINDINGS_ENDPOINT, API_HOST } from '../../tokens';
+import { HttpClient } from 'src/app/lib/core/http/core';
 @Component({
   selector: 'app-dynamic-select-input',
   templateUrl: './dynamic-select-input.component.html',
@@ -105,7 +103,7 @@ export class DynamicSelectInputComponent implements OnDestroy {
 
   constructor(
     public readonly inputType: DynamicInputTypeHelper,
-    private client: DrewlabsRessourceServerClient,
+    private client: HttpClient,
     @Inject(API_BINDINGS_ENDPOINT) path: string,
     @Inject(API_HOST) host: string
   ) {
@@ -123,11 +121,9 @@ export class DynamicSelectInputComponent implements OnDestroy {
               },
             })
             .pipe(
-              doLog('Load binding result: '),
               map((state) => {
-                const data = getResponseDataFromHttpResponse(state);
-                if (data && Array.isArray(data)) {
-                  return controlBindingsSetter(data)(this._inputConfig)
+                if (state && Array.isArray(state)) {
+                  return controlBindingsSetter(state)(this._inputConfig)
                     .items as any[];
                 }
                 return [];
