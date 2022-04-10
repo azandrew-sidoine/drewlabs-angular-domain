@@ -37,9 +37,7 @@ export const applyHiddenAttributeCallback =
             _control.hidden = !requiredIfValues.includes(value) ? true : false;
             if (_control.hidden) {
               const current = formgroup.get(bidings.key);
-              current instanceof FormGroup
-                ? current.reset()
-                : current.setValue(undefined);
+              current?.reset();
               ComponentReactiveFormHelpers.clearControlValidators(
                 formgroup.get(bidings.key) || undefined
               );

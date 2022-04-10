@@ -1,9 +1,9 @@
-import { Inject, Injectable, InjectionToken, Optional } from "@angular/core";
-import { BehaviorSubject, Observable } from "rxjs";
-import { map, tap } from "rxjs/operators";
-import { CacheProvider, FormsLoader } from "../../core";
-import { FormInterface } from "../../core/compact";
-import { DYNAMIC_FORM_LOADER } from "./forms-loader";
+import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+import { CacheProvider, FormsLoader } from '../../core';
+import { FormInterface } from '../../core/compact';
+import { DYNAMIC_FORM_LOADER } from './forms-loader';
 
 export const CACHE_PROVIDER = new InjectionToken<CacheProvider>(
   'PROVIDES AN INSTANCE OF CacheProvider::Interface'
@@ -15,13 +15,15 @@ export class FormsCacheProvider implements CacheProvider {
   private readonly _cache = new BehaviorSubject<FormInterface[]>([]);
 
   // @constructor
-  constructor(@Inject(DYNAMIC_FORM_LOADER) @Optional() private loader: FormsLoader) {}
+  constructor(
+    @Inject(DYNAMIC_FORM_LOADER) @Optional() private loader: FormsLoader
+  ) {}
 
   /**
    *
    * @param id
    */
-  get(id: string | number): Observable<FormInterface> {
+  get(id: string | number): Observable<FormInterface | undefined> {
     return this._cache.pipe(
       map((state) => state.find((x) => id.toString() === x.id.toString()))
     );

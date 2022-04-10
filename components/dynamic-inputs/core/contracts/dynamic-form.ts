@@ -19,7 +19,7 @@ export interface IDynamicForm {
   title: string;
   description?: string;
   forms?: IDynamicForm[];
-  controlConfigs?: IHTMLFormControl[];
+  controlConfigs: IHTMLFormControl[];
   endpointURL?: string;
   appcontext?: string;
 }

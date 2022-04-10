@@ -1,6 +1,6 @@
-import { AbstractControl } from "@angular/forms";
-import { Observable } from "rxjs";
-import { IDynamicForm } from "../../core";
+import { AbstractControl } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { IDynamicForm } from '../../core';
 
 export type ControlsStateMap = {
   [index: string]: { onlySelf: boolean; emitEvent: boolean } | undefined;
@@ -70,7 +70,7 @@ export interface FormComponentInterface {
    *
    * @param name
    */
-  getControl(name: string): AbstractControl;
+  getControl(name: string): AbstractControl | undefined;
 
   /**
    * Handle submission event of the internal formgroup

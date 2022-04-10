@@ -21,7 +21,7 @@ export interface CacheProvider {
    *
    * @param id
    */
-  get(id: string|number): Observable<FormInterface>;
+  get(id: string|number): Observable<FormInterface|undefined>;
 
   /**
    *

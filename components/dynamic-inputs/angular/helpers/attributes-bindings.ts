@@ -35,10 +35,7 @@ export function createHiddenAttributeSetter(
           _control.hidden = !requiredIfValues.includes(value) ? true : false;
           if (_control.hidden) {
             const current = formgroup.get(bidings.key);
-            // current instanceof FormGroup || current instanceof FormArray
-            //   ? current.reset()
-            //   : current.reset();
-            current.reset();
+            current?.reset();
             ComponentReactiveFormHelpers.clearControlValidators(
               formgroup.get(bidings.key) || undefined
             );

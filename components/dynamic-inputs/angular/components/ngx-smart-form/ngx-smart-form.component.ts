@@ -11,7 +11,7 @@ import {
   TemplateRef,
 } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
-import { Observable, Subject } from 'rxjs';
+import { EMPTY, Observable, Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { timeout } from '../../../../../rxjs/helpers';
 import { IDynamicForm, IHTMLFormControl, sortformbyindex } from '../../../core';
@@ -43,8 +43,8 @@ export class NgxSmartFormComponent
   //#endregion Local properties
 
   //#region Component inputs
-  @Input() template: TemplateRef<Node>;
-  @Input() addTemplate: TemplateRef<Node>;
+  @Input() template!: TemplateRef<Node>;
+  @Input() addTemplate!: TemplateRef<Node>;
   @Input() performingAction = false;
   @Input() disabled = false;
   @Input() submitable = true;
@@ -73,7 +73,7 @@ export class NgxSmartFormComponent
   }
 
   //#region Content
-  @ContentChild('submitButton') submitButtonRef: TemplateRef<Node>;
+  @ContentChild('submitButton') submitButtonRef!: TemplateRef<Node>;
   //#endregion Component Injected Templates
 
   public constructor(
@@ -83,7 +83,11 @@ export class NgxSmartFormComponent
 
   //#region FormComponent interface Methods definitions
   controlValueChanges(control: string): Observable<unknown> {
-    return this.formGroup?.get(control)?.valueChanges;
+    const value = this.formGroup.get(control);
+    if (value) {
+      return value.valueChanges;
+    }
+    return EMPTY;
   }
 
   getControlValue(control: string, _default?: any): unknown {
@@ -109,8 +113,12 @@ export class NgxSmartFormComponent
     }
     this.formGroup.addControl(name, control);
   }
-  getControl(name: string): AbstractControl {
-    return this.formGroup.get(name);
+  getControl(name: string) {
+    const control = this.formGroup.get(name);
+    if (control) {
+      return control;
+    }
+    return undefined;
   }
   onSubmit(event: Event): void | Observable<unknown> {
     ComponentReactiveFormHelpers.validateFormGroupFields(this.formGroup);

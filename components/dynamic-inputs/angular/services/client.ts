@@ -13,7 +13,7 @@ export class JSONFormsClient implements FormsClient {
   ) {}
 
   // Get a form configuration using id
-  get(id: string | number): Observable<FormInterface> {
+  get(id: string | number): Observable<FormInterface|undefined> {
     return this.provider.get(id);
   }
 
