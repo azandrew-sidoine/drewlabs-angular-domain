@@ -21,5 +21,5 @@ export interface ActionHandler<T, A> {
    * @param action
    * @param payload
    */
-  handle(action: A, payload: Partial<T> | any): HandlerResult<any>;
+  handle(action: A, payload?: Partial<T> | any): HandlerResult<any>;
 }
