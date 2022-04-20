@@ -26,6 +26,7 @@ export class Control implements ControlInterface {
   maxDate!: string;
   selectableValues!: string;
   selectableModel!: string;
+  modelFilters!: string;
   multiple!: number;
   controlGroupKey!: string;
   controlName!: string;

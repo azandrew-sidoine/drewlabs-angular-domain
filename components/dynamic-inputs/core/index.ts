@@ -14,7 +14,7 @@ export {
   ServerSideSelectableControl,
   SelectableControlDataSource,
   CacheProvider,
-} from "./contracts";
+} from './contracts';
 
 // Control Types
 export {
@@ -33,7 +33,7 @@ export {
   InputGroup,
   DynamicForm,
   AbstractHTMLFormControl,
-} from "./types";
+} from './types';
 
 // Helpers
 export {
@@ -45,8 +45,8 @@ export {
   copyform,
   sortformbyindex,
   groupControlsBy,
-  setControlChildren
-} from "./helpers";
+  setControlChildren,
+} from './helpers';
 
 // Models
 export {
@@ -60,4 +60,10 @@ export {
   createFormElement,
   createOptionElement,
   serializedOptionElement,
-} from "./models";
+} from './models';
+
+export {
+  ControlGroupInterface,
+  ControlInterface,
+  FormInterface,
+} from './compact';

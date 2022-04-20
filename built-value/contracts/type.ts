@@ -1,7 +1,6 @@
 import { isDefined } from '../../utils/types/type-utils';
 
 export interface TypeBuilder<T extends object> {
-
   /**
    * @description Interface definition for building an instance of T
    * @param bluePrint [[ new () => T]]
@@ -22,22 +21,29 @@ export interface TypeBuilder<T extends object> {
  * @param bluePrint [[new () => T]]
  * @param params [[object]]
  */
-export function buildJSObjectType<T extends any>(bluePrint: new () => T, params: { [index: string]: any }): T {
+export function buildJSObjectType<T extends any>(
+  bluePrint: new () => T,
+  params: { [index: string]: any }
+): T {
   const obj = new bluePrint() as any;
   Object.keys(params).forEach((key) => {
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = params[key];
-    }
+    obj[key] = params[key];
   });
   return obj;
 }
 
-export function rebuildJSObjectType<T extends any>(instance: any, params: T | { [index: string]: any }): T {
+export function rebuildJSObjectType<T extends any>(
+  instance: any,
+  params: T | { [index: string]: any }
+): T {
   if (!isDefined(instance)) {
     return instance;
   }
   Object.keys(params as { [index: string]: any }).forEach((key) => {
-    if (instance.hasOwnProperty(key) && isDefined((params as { [index: string]: any })[key])) {
+    if (
+      instance.hasOwnProperty(key) &&
+      isDefined((params as { [index: string]: any })[key])
+    ) {
       instance[key] = (params as { [index: string]: any })[key];
     }
   });

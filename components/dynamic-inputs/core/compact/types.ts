@@ -40,8 +40,9 @@ export interface ControlInterface {
   maxDate?: string;
   selectableValues?: string;
   selectableModel?: string;
+  modelFilters?: string;
   multiple: number | boolean;
-  controlGroupKey?: string;
+  controlGroupKey?: string|number;
   controlName: string;
   controlIndex: number;
   options?: { [index: string]: any }[];
