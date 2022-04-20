@@ -36,6 +36,6 @@ export const formControlViewModelBindings = (): { [index: string]: any } => ({
   form_control_id: 'id',
   upload_url: 'uploadURL',
   unique_on: 'uniqueOn',
-  is_repeatable: 'isRepeatable',
+  repeatable: 'isRepeatable',
   container_class: 'dynamicControlContainerClass'
 });
