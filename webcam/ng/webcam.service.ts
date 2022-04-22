@@ -1,11 +1,11 @@
 import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable } from "@angular/core";
+import { Inject, Injectable, OnDestroy } from "@angular/core";
 import { createStateful } from "../../rxjs/helpers";
 import { NAVIGATOR } from "../../utils/ng/common";
 import { OnVideoStreamHandlerFn, VideoConstraints, Webcam } from "../types";
 
 @Injectable()
-export class WebcamService implements Webcam {
+export class WebcamService implements Webcam, OnDestroy {
   private _video!: HTMLVideoElement;
   private _mediaStream!: MediaStream | undefined;
   private _onCameraStartedCallback!: OnVideoStreamHandlerFn;
@@ -125,7 +125,7 @@ export class WebcamService implements Webcam {
     }); //
   };
 
-  stopCamera(onComplete?: () => void) {
+  'stopCamera'(onComplete?: () => void) {
     this.dispose();
     if (onComplete) {
       onComplete();
@@ -142,9 +142,13 @@ export class WebcamService implements Webcam {
       );
     }
     if (this._mediaStream) {
-      this._mediaStream.getVideoTracks().forEach((track) => track.stop());
-      this._mediaStream.getAudioTracks().forEach((track) => track.stop());
+      this._mediaStream.getTracks().forEach((track) => track.stop());
       this._mediaStream = undefined;
     }
   };
+  ngOnDestroy(): void {
+    if (this._video) {
+      this._video.pause
+    }
+  }
 }

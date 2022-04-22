@@ -305,7 +305,7 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this._destroy$.next();
     this.camera.stopCamera();
+    this._destroy$.next();
   }
 }
