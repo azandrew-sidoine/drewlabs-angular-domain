@@ -45,8 +45,7 @@ declare var cv: any;
   ],
 })
 export class FaceDetectionComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+  implements OnInit, AfterViewInit, OnDestroy {
   @Input() width: number = 320;
   @Input() height: number = 240;
   public showCanvas = false;
@@ -73,7 +72,7 @@ export class FaceDetectionComponent
   @Input() detectorTimeOut: number = 10000;
   @Input() noFacesDetectedTimeOut = 20000;
 
-  private _detectFacesResult!: { size?: number; encodedURI?: string };
+  private _detectFacesResult!: { size?: number; encodedURI?: string, videoURI?: any };
   @Output() detectFacesResultEvent = new EventEmitter<{
     size?: number;
     encodedURI?: string;
@@ -88,13 +87,13 @@ export class FaceDetectionComponent
     @Inject(DOCUMENT) private document: Document,
     private faceMeshDetector: FaceMeshDetectorService,
     private faceMeshDrawer: FaceMeshPointsDrawerService
-  ) {}
+  ) { }
 
   async ngOnInit() {
     await this.initializeComponent();
   }
 
-  async ngAfterViewInit() {}
+  async ngAfterViewInit() { }
 
   initializeComponent = (paramDeviceId = null) =>
     (async () => {
@@ -144,6 +143,29 @@ export class FaceDetectionComponent
                 }
               }, this.detectorTimeOut);
 
+              /* video recorder stuff */
+              let recordedChunks = [];
+              let stream = Canvas.getStream(canvas);
+              let videoURI = null;
+              let mediaRecorder = new MediaRecorder(stream, {
+                mimeType: "video/webm; codecs=vp9"
+              });
+
+              mediaRecorder.start(2000);
+              mediaRecorder.ondataavailable = (event) => {
+                recordedChunks.push(event.data);
+                // after stop `dataavilable` event run one more time
+                // if (mediaRecorder.state === 'recording') {
+                //   mediaRecorder.stop();
+                // }
+              }
+
+              // mediaRecorder.onstop = (event) => {
+              //   let blob = new Blob(recordedChunks, { type: "video/webm" });
+              //   videoURI = URL.createObjectURL(blob);
+              // }
+              /* video recorder stuff */
+
               const interval_ = getReadInterval();
               // Run opencv face detector
               // Run the face mesh detector as well
@@ -160,11 +182,20 @@ export class FaceDetectionComponent
                       if (
                         predictions?.length === this.totalFaces &&
                         predictions[0].faceInViewConfidence >=
-                          this.confidenceScore
+                        this.confidenceScore
                       ) {
+                        let blob = new Blob(recordedChunks, { type: "video/webm" });
+                        let reader = new FileReader();
+                        reader.readAsDataURL(blob);
+                        reader.onloadend = () => {
+                          videoURI = reader.result;
+                          // console.log(videoURI);
+                        }
+                        // videoURI = URL.createObjectURL(blob);
                         this._detectFacesResult = {
                           size: predictions?.length,
                           encodedURI: Canvas.readAsDataURL(canvas),
+                          videoURI: videoURI
                         };
                       }
                       const context =
@@ -186,14 +217,14 @@ export class FaceDetectionComponent
           },
           paramDeviceId == null
             ? {
-                width: { exact: this.width },
-                height: { exact: this.height },
-              }
+              width: { exact: this.width },
+              height: { exact: this.height },
+            }
             : {
-                width: { exact: this.width },
-                height: { exact: this.height },
-                deviceId: paramDeviceId,
-              }
+              width: { exact: this.width },
+              height: { exact: this.height },
+              deviceId: paramDeviceId,
+            }
         );
       } catch (error) {
         this.showCameraError = true;
