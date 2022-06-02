@@ -15,6 +15,7 @@ import { forkJoin } from "rxjs";
 import { takeUntil, tap } from "rxjs/operators";
 import { createSubject } from "src/app/lib/core/rxjs/helpers";
 import { Canvas } from "../../browser";
+import { MediaElement } from "../../browser/canvas";
 import {
   FaceMeshDetectorService,
   FaceMeshPointsDrawerService,
@@ -145,7 +146,7 @@ export class FaceDetectionComponent
 
               /* video recorder stuff */
               let recordedChunks = [];
-              let stream = Canvas.getStream(canvas);
+              let stream = MediaElement.getStream(this.videoHTMLElement);
               let videoURI = null;
               let mediaRecorder = new MediaRecorder(stream, {
                 mimeType: "video/webm; codecs=vp9"

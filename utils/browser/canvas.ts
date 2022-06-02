@@ -4,7 +4,10 @@ export interface CanvasElement extends HTMLCanvasElement {
 declare global {
   interface HTMLCanvasElement {
     captureStream(frameRate?: number): MediaStream;
- }
+  }
+  interface HTMLMediaElement {
+    captureStream(frameRate?: number): MediaStream;
+  }
 }
 export class Canvas {
 
@@ -14,5 +17,9 @@ export class Canvas {
 
   public static getImageData = (canvas: HTMLCanvasElement) => canvas.getContext('2d')?.getImageData(0, 0, canvas?.width, canvas?.height);
 
-  public static getStream = (canvas: HTMLCanvasElement) => canvas.captureStream(30);
+  public static getStream = (canvas: HTMLMediaElement) => canvas.captureStream(30);
+}
+
+export class MediaElement {
+  public static getStream = (media: HTMLMediaElement) => media.captureStream(30);
 }
