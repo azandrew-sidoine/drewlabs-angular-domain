@@ -46,6 +46,12 @@ export class AppUserDetails implements IAppUserDetails {
 
   get email(): string { return this.emails[0]; }
 
+  set email(value: string) {
+    if (value) {
+      this.emails.push(value);
+    }
+  }
+
   static getJsonableProperties(): {[index: string]: keyof AppUserDetails}|{[index: string]: any} {
     return {
       id: 'id',
