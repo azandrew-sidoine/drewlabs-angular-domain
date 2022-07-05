@@ -129,6 +129,6 @@ export class DynamicFileInputComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this._destroy$.next();
+    this._destroy$.next(true);
   }
 }

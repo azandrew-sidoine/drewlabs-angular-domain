@@ -39,7 +39,7 @@ export class AuthGuardService
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): Observable<boolean>|boolean|Promise<boolean> {
+  ): Observable<boolean> | boolean | Promise<boolean> {
     const url: string = state.url;
     return this.checkLogin(url);
   }
@@ -52,7 +52,7 @@ export class AuthGuardService
   canActivateChild(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): Observable<boolean>|boolean|Promise<boolean> {
+  ): Observable<boolean> | boolean | Promise<boolean> {
     return this.canActivate(route, state);
   }
 
@@ -61,7 +61,7 @@ export class AuthGuardService
    * @param route [[ActivatedRouteSnapshot]] instance
    * @param state [[RouterStateSnapshot]] instance
    */
-  canLoad(route: Route): Observable<boolean>|boolean|Promise<boolean> {
+  canLoad(route: Route): Observable<boolean> | boolean | Promise<boolean> {
     const url = `/${route.path}`;
     return this.checkLogin(url);
   }
@@ -70,7 +70,7 @@ export class AuthGuardService
    * @description Méthode de vérification de d'accès
    * @param url [[string]] redirection url
    */
-  checkLogin(url: string): Observable<boolean>|boolean|Promise<boolean> {
+  checkLogin(url: string): Observable<boolean> | boolean | Promise<boolean> {
     return this.authState$
       .pipe(
         takeUntil(this._destroy$),
@@ -84,7 +84,7 @@ export class AuthGuardService
       );
   }
   ngOnDestroy(): void {
-    this._destroy$.next();
+    this._destroy$.next(true);
   }
 }
 
@@ -115,7 +115,7 @@ export class AuthorizationsGuard implements CanActivate {
     return this.isAuthorized(route.data?.authorizations, url);
   }
 
-  private isAuthorized(authorizations: string[] | string, url: string): Observable<boolean>|boolean|Promise<boolean> {
+  private isAuthorized(authorizations: string[] | string, url: string): Observable<boolean> | boolean | Promise<boolean> {
     return this.auth.state$
       .pipe(
         mergeMap(source => {

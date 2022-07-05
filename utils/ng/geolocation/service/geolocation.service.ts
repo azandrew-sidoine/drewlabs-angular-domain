@@ -105,7 +105,7 @@ export class GeolocationService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this._destroy$.next();
+    this._destroy$.next(true);
   }
 }
 
