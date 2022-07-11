@@ -48,7 +48,8 @@ export class AppUserDetails implements IAppUserDetails {
 
   set email(value: string) {
     if (value) {
-      this.emails.push(value);
+
+      this.emails = [...(this.emails ?? []), value];
     }
   }
 

@@ -5,17 +5,26 @@ import { isArray, isDefined } from '../../../../utils/types/type-utils';
 /**
  * Checkis if a given authorizable instance has any of the provided authorization
  */
-export type AnyScopeFunc = (authorizable: Authorizable, authorizations: string[]) => boolean;
+export type AnyScopeFunc = (
+  authorizable: Authorizable,
+  authorizations: string[]
+) => boolean;
 
 /**
  * Checks if an authorizable instance has a given scope in it authorizations
  */
-export type ScopeFunc = (authorizable: Authorizable, authorization: string) => boolean;
+export type ScopeFunc = (
+  authorizable: Authorizable,
+  authorization: string
+) => boolean;
 
 /**
  * @description Handler function for checking a given user have any of the provided authorizations
  */
-export const userCanAny = (authorizable: Authorizable, authorizations: string[]) => {
+export const userCanAny = (
+  authorizable: Authorizable,
+  authorizations: string[]
+) => {
   if (!isDefined(authorizable)) {
     return false;
   }
@@ -25,7 +34,9 @@ export const userCanAny = (authorizable: Authorizable, authorizations: string[])
   if (authorizations.length === 0) {
     return true;
   }
-  return lodash.intersection(authorizable.authorizations, authorizations).length > 0;
+  return (
+    lodash.intersection(authorizable.authorizations, authorizations).length > 0
+  );
 };
 
 /**
@@ -69,7 +80,6 @@ export class AppUser implements IAppUser, NotifiableUserDetails, Authorizable {
   doubleAuthActive: number | boolean = undefined;
   channels: object[] = undefined;
 
-
   get isVerified(): boolean {
     return Boolean(this.verified);
   }
@@ -82,14 +92,22 @@ export class AppUser implements IAppUser, NotifiableUserDetails, Authorizable {
     return Boolean(this.doubleAuthActive);
   }
 
-  get userInfo(): IAppUserDetails { return this.userDetails; }
+  get userInfo(): IAppUserDetails {
+    return this.userDetails;
+  }
 
   // tslint:disable-next-line: typedef
   get rolesAsString() {
-    return isDefined(this.roles) ? isArray(this.roles) ? this.roles.join(', ') : this.roles : '';
+    return isDefined(this.roles)
+      ? isArray(this.roles)
+        ? this.roles.join(', ')
+        : this.roles
+      : '';
   }
 
-  static getJsonableProperties(): {[index: string]: keyof AppUser}|{[index: string]: any} {
+  static getJsonableProperties():
+    | { [index: string]: keyof AppUser }
+    | { [index: string]: any } {
     return {
       username: 'username',
       is_verified: 'verified',
@@ -100,7 +118,7 @@ export class AppUser implements IAppUser, NotifiableUserDetails, Authorizable {
       role_ids: 'roleIDs',
       authorizations: 'authorizations',
       channels: 'channels',
-      user_details: { name: 'userDetails', type: AppUserDetails }
+      user_details: { name: 'userDetails', type: AppUserDetails },
     } as { [index: string]: keyof AppUser } | { [index: string]: any };
   }
 }
@@ -124,7 +142,7 @@ export const userFormViewModel = () => {
     department_id: 'userDetails.departmentID',
     agence_id: 'userDetails.agenceID',
     is_manager: 'userDetails.isManager',
-    is_department_manager: 'userDetails.isManager'
+    is_department_manager: 'userDetails.isManager',
   };
 };
 
