@@ -16,6 +16,7 @@ import { AuthTokenService } from '../../auth-token/core/auth-token.service';
 import { mergeMap, takeUntil } from 'rxjs/operators';
 import { userCanAny, Authorizable, userCan } from '../contracts/v2/user/user';
 import { createSubject } from '../../rxjs/helpers/index';
+import { permissions } from 'src/app/lib/bloc/routing/permission';
 
 /**
  * @description Authentication guard
@@ -122,6 +123,9 @@ export class AuthorizationsGuard implements CanActivate {
           if (!isDefined(source.user)) {
             this.router.navigate([AuthPathConfig.REDIRECT_PATH]);
             return of(false);
+          }
+          if ((source.user as Authorizable).authorizations.includes(permissions.all)) {
+            return of(true);
           }
           let isAuthorized = false;
           if (authorizations && authorizations instanceof Array) {
