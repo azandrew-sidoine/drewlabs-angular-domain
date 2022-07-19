@@ -41,8 +41,8 @@ const initalState: AuthState = {
 })
 export class AuthService implements OnDestroy {
   //slim
-  private roles : Array<any> = [];
-  private userAuthenticated : UserStorageProvider;
+  private roles: Array<any> = [];
+  private userAuthenticated: UserStorageProvider;
 
   // tslint:disable-next-line: variable-name
   private _destroy$ = createSubject<{}>();
@@ -116,7 +116,7 @@ export class AuthService implements OnDestroy {
       });
   }
 
-  ngOnDestroy = () => this._destroy$.next();
+  ngOnDestroy = () => this._destroy$.next(true);
 
   /**
    * @description Authenticate user using server credentials and try logging in user
@@ -241,25 +241,25 @@ export class AuthService implements OnDestroy {
 
 
   // slim auth
-  private jwtToken :string;
+  private jwtToken: string;
 
-  getUserAuthenticated(){
+  getUserAuthenticated() {
     return this.userAuthenticated;
   }
-  isAdmin(){
-    for (let r of this.roles){
+  isAdmin() {
+    for (let r of this.roles) {
       if (r.authority == 'ADMIN') return true;
     }
     return false;
   }
 
-  isDirecteur(){
-     for (let r of this.roles){
-       if (r.authority == 'DIRECTEUR') return true;
-     }
-     return false;
-   }
-   loadToken(){
+  isDirecteur() {
+    for (let r of this.roles) {
+      if (r.authority == 'DIRECTEUR') return true;
+    }
+    return false;
+  }
+  loadToken() {
     this.jwtToken = localStorage.getItem('token');
     return this.jwtToken;
   }

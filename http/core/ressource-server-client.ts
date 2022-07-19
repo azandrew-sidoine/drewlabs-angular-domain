@@ -102,7 +102,7 @@ export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHt
     return this.httpClient.delete(`${path}/${id}`, params)
       .pipe(
         doLog(`/DELETE ${path}/${id} - Request response: `),
-        mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
+        // mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
       ) as Observable<IHttpResponse<any>>;
   }
 

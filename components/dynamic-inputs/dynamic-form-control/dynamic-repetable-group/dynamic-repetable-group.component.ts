@@ -120,6 +120,6 @@ export class DynamicRepetableGroupComponent implements OnDestroy {
 
   // tslint:disable-next-line: typedef
   ngOnDestroy() {
-    this._destroy$.next();
+    this._destroy$.next(true);
   }
 }
