@@ -28,13 +28,8 @@ export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHt
       .pipe(
 
         doLog(`/POST ${path} - Request response: `),
-        tap( data => {
-          console.log(data);
-        }
-        ),
-        //mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null)),
-
-      )as Observable<IHttpResponse<any>>;
+        // mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
+      ) as Observable<IHttpResponse<any>>;
   }
 
   /**
@@ -83,10 +78,6 @@ export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHt
     return this.httpClient.put(`${path}/${id}`, body, params)
       .pipe(
         doLog(`/PUT ${path}/${id} - Request response: `),
-        tap( data => {
-          console.log(data);
-        }
-        ),
         // mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
       ) as Observable<IHttpResponse<any>>;
   }
