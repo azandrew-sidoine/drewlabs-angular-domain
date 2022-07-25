@@ -52,7 +52,7 @@ export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHt
     return this.httpClient.get(`${path}/${id}`, params)
       .pipe(
         doLog(`/GET ${path}/${id} - Request response: `),
-        mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
+        // mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
       ) as Observable<IHttpResponse<any>>;
   }
 
@@ -90,7 +90,7 @@ export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHt
     return this.httpClient.delete(`${path}`, params)
       .pipe(
         doLog(`/DELETE ${path} - Request response: `),
-        mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
+        // mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
       ) as Observable<IHttpResponse<any>>;
   }
 
