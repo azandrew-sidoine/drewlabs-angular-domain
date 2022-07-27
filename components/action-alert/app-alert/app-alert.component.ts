@@ -32,7 +32,7 @@ import { createSubject } from '../../../rxjs/helpers';
   styles: [
     `
        .action-alert {
-          z-index: 9999;
+          z-index: 999999999;
         }
     `
   ],
