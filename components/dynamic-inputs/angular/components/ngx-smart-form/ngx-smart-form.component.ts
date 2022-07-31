@@ -123,7 +123,6 @@ export class NgxSmartFormComponent
   onSubmit(event: Event): void | Observable<unknown> {
     ComponentReactiveFormHelpers.validateFormGroupFields(this.formGroup);
     if (this.formGroup.valid) {
-      console.log(this.formGroup.getRawValue());
       this.submit.emit(this.formGroup.getRawValue());
     }
     event.preventDefault();

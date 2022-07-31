@@ -10,7 +10,6 @@ import {
   tap,
   takeUntil,
 } from "rxjs/operators";
-import { doLog } from "../operators";
 
 export interface StoreAction {
   type: string;

@@ -98,14 +98,12 @@ export class NgxSmartFormArrayComponent implements OnInit, OnDestroy {
     this.addNewComponent(this.childCount);
 
     // Simulate form array
-    console.log(this.formArray);
     this.formArray.valueChanges
       .pipe(tap((state) => this.formArrayChange.emit(state)))
       .subscribe();
   }
 
   onTemplateButtonClicked(event: Event) {
-    console.log(event);
     this.childCount++;
     this.addNewComponent(this.childCount);
     event.preventDefault();

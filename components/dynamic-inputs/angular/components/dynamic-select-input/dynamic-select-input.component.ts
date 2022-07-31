@@ -15,7 +15,6 @@ import {
   httpHost,
 } from '../../../../../http/helpers';
 import { controlBindingsSetter } from '../../../core/helpers';
-import { doLog } from '../../../../../rxjs/operators';
 import { DynamicInputTypeHelper } from '../../services/input-type.service';
 import { SelectInput } from '../../../core/types/select';
 import { InputEventArgs } from '../../types/dynamic-inputs';
@@ -123,7 +122,6 @@ export class DynamicSelectInputComponent implements OnDestroy {
               },
             })
             .pipe(
-              doLog('Load binding result: '),
               map((state) => {
                 const data = getResponseDataFromHttpResponse(state);
                 if (data && Array.isArray(data)) {

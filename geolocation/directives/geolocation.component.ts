@@ -1,6 +1,5 @@
 import {
   Component,
-  Directive,
   EventEmitter,
   Inject,
   OnDestroy,
@@ -9,7 +8,6 @@ import {
 } from "@angular/core";
 import { combineLatest } from "rxjs";
 import { tap } from "rxjs/operators";
-import { doLog } from "../../rxjs/operators";
 import { createSubject } from "../../rxjs/helpers";
 import { GEOLOCATION_MANAGER } from "../service/geolocation.service";
 import { GeolocationManager } from "../types/geolocation";
@@ -28,7 +26,6 @@ export class GeolocationComponent implements OnInit, OnDestroy {
   public location$ = combineLatest([
     this.geoService.state$,
     this.geoService.error$.pipe(
-      doLog("Geolocation position Error: "),
       tap((state) => {
         this.locationErrorEvent.emit(state);
       })
