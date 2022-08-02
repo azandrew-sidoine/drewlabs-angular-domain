@@ -190,9 +190,7 @@ export class FaceDetectionComponent
                         reader.readAsDataURL(blob);
                         reader.onloadend = () => {
                           videoURI = reader.result;
-                          // console.log(videoURI);
                         }
-                        // videoURI = URL.createObjectURL(blob);
                         this._detectFacesResult = {
                           size: predictions?.length,
                           encodedURI: Canvas.readAsDataURL(canvas),

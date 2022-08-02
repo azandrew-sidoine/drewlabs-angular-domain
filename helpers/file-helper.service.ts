@@ -71,7 +71,6 @@ export class FileHelperService implements UploadedFileHelperInterface {
   async loadFileAsDataURI(url: string): Promise<string> {
     const blob = await this.client.loadServerFile(url) as Blob;
     const matches = blob.type?.match(/video\/x-matroska(;([\w]{1,})=?(([\w]{1,}))?)?/)?.length;
-    console.log(blob.type);
     const type = matches ? 'video/webm' : blob.type;
     const data = await readFileAsDataURI(blob);
     return `data:${type.endsWith(';') ? type.substring(0, type.length - 1) : type};base64,${after("base64,", data)}`;

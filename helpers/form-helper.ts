@@ -205,8 +205,6 @@ export abstract class FormsViewComponent<T extends IEntity> extends AbstractAler
           this.onFormCollectionLoaded(forms);
           this.suscribeToFormControlChanges();
         }
-      }, (err) => {
-        console.log(err);
       });
   }
 
