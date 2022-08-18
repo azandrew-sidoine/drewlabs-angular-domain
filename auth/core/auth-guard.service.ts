@@ -13,7 +13,7 @@ import { AuthPathConfig } from './config';
 import { Observable, of } from 'rxjs';
 import { isDefined } from '../../utils/types/type-utils';
 import { AuthTokenService } from '../../auth-token/core/auth-token.service';
-import { mergeMap, takeUntil } from 'rxjs/operators';
+import { mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { userCanAny, Authorizable, userCan } from '../contracts/v2/user/user';
 import { createSubject } from '../../rxjs/helpers/index';
 
@@ -41,6 +41,7 @@ export class AuthGuardService
     state: RouterStateSnapshot
   ): Observable<boolean> | boolean | Promise<boolean> {
     const url: string = state.url;
+    console.log(url)
     return this.checkLogin(url);
   }
 
@@ -63,6 +64,7 @@ export class AuthGuardService
    */
   canLoad(route: Route): Observable<boolean> | boolean | Promise<boolean> {
     const url = `/${route.path}`;
+    console.log("RESPONID", url)
     return this.checkLogin(url);
   }
 
@@ -71,16 +73,19 @@ export class AuthGuardService
    * @param url [[string]] redirection url
    */
   checkLogin(url: string): Observable<boolean> | boolean | Promise<boolean> {
-    return this.authState$
-      .pipe(
+    console.log("URL", this.authState$)
+    return this.authState$.pipe(
         takeUntil(this._destroy$),
+        tap(source => console.log("SOURCE", source)),
         mergeMap(source => {
+          console.log("SOURCE", source)
           if (!isDefined(source.user) || !isDefined(source.isLoggedIn)) {
             this.router.navigate([AuthPathConfig.REDIRECT_PATH]);
             return of(false);
           }
           return of(true);
         }),
+
       );
   }
   ngOnDestroy(): void {
