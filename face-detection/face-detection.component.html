@@ -8,23 +8,33 @@
   muted
   playsinline
 ></video>
-<!-- Add Searching face animation Here -->
-<div
-  [ngClass]="
-    showCanvas && !showCameraError
-      ? 'not-hidden-canvas text-center'
-      : 'hidden-canvas text-center'
-  "
->
-  <canvas #canvasElement></canvas>
-</div>
-<ng-container *ngIf="!showCameraError">
-  <div *ngIf="!showCanvas">
-    <ng-content select="[cameraloading]"></ng-content>
+<ng-container *ngIf="state$ | async as vm">
+  <div [ngClass]="canvasCss(vm)">
+    <canvas #canvasElement></canvas>
   </div>
+  <ng-container *ngIf="!vm.hasError">
+    <div *ngIf="!vm.hasCanvas">
+      <ng-content select="[cameraloading]"></ng-content>
+    </div>
+  </ng-container>
+  <!--  -->
+  <ng-container *ngIf="vm.hasError">
+    <ng-content select="[cameraerror]"></ng-content>
+  </ng-container>
+  <!--\  -->
+  <!--  -->
+  <ng-container
+    *ngIf="
+      startFaceDetectionRef &&
+      !vm.hasCanvas &&
+      !vm.hasError &&
+      !vm.loadingModel &&
+      !vm.loadingCamera
+    "
+  >
+    <ng-container
+      *ngTemplateOutlet="startFaceDetectionRef; context: { $implicit: runFaceDetection.bind(this)}"
+    ></ng-container>
+  </ng-container>
+  <!--\  -->
 </ng-container>
-<!-- Camera error placeholder -->
-<ng-container *ngIf="showCameraError">
-  <ng-content select="[cameraerror]"></ng-content>
-</ng-container>
-<!--\ End Camera error placeholder -->

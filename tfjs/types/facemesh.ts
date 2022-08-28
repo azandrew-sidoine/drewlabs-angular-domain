@@ -2,10 +2,10 @@ import {
   FaceLandmarksDetector,
   FaceLandmarksPrediction,
   SupportedPackages,
-} from "@tensorflow-models/face-landmarks-detection";
-import { AnnotatedPrediction } from "@tensorflow-models/face-landmarks-detection/dist/mediapipe-facemesh";
-import { Observable } from "rxjs";
-import { MLModelProvider } from "./model";
+} from '@tensorflow-models/face-landmarks-detection';
+import { Observable } from 'rxjs';
+import { FaceLandmarkPreditions } from './face-landmarks';
+import { MLModelProvider } from './model';
 
 export interface FaceLandmarksModelConfig {
   confidence?: number;
@@ -29,5 +29,5 @@ export interface FaceMeshDetector extends MLModelProvider {
   detectFaces(
     input: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement,
     _interval: number
-  ): Observable<AnnotatedPrediction[] | undefined>;
+  ): Observable<FaceLandmarkPreditions[] | undefined>;
 }

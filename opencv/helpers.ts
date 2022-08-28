@@ -25,17 +25,17 @@ export const logError = (cv: any, err: any) => {
     err = err.stack?.replace(/\n/g, '<br>');
   }
   throw new Error(err);
-}
-
-export const drawRectStroke = (
-  facePoints: { x: number, y: number, width: number, height: number }[],
-) => (context?: CanvasRenderingContext2D) => {
-  if (context) {
-    facePoints.forEach(({ x, y, width, height }) => {
-      if (x && y && width && height) {
-        context.strokeStyle = "green";
-        context.strokeRect(x, y, width, height);
-      }
-    });
-  }
 };
+
+export const drawRectStroke =
+  (facePoints: { x: number; y: number; width: number; height: number }[]) =>
+  (context?: CanvasRenderingContext2D, color?: string) => {
+    if (context) {
+      facePoints.forEach(({ x, y, width, height }) => {
+        if (x && y && width && height) {
+          context.strokeStyle = color ?? 'green';
+          context.strokeRect(x, y, width, height);
+        }
+      });
+    }
+  };

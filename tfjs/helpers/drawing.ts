@@ -1,8 +1,14 @@
-import { FaceLandmarksPrediction } from "@tensorflow-models/face-landmarks-detection";
-import { TRIANGULATION } from "./constants";
+import { FaceLandmarksPrediction } from '@tensorflow-models/face-landmarks-detection';
+import { FacePointsType } from '../types';
+import { TRIANGULATION } from './constants';
 
 // Triangle drawing method
-const drawPath = (context: CanvasRenderingContext2D, points: number[][], closePath: boolean = true) => {
+function drawPath(
+  context: CanvasRenderingContext2D,
+  points: number[][],
+  closePath: boolean = true,
+  color?: string
+) {
   const region = new Path2D();
   region.moveTo(points[0][0], points[0][1]);
 
@@ -14,9 +20,9 @@ const drawPath = (context: CanvasRenderingContext2D, points: number[][], closePa
   if (closePath) {
     region.closePath();
   }
-  context.strokeStyle = "grey";
+  context.strokeStyle = color ?? 'grey';
   context.stroke(region);
-};
+}
 
 /**
  * Draw a face points prediction mesh on a Rendering context
@@ -24,8 +30,12 @@ const drawPath = (context: CanvasRenderingContext2D, points: number[][], closePa
  * @param predictions
  * @param context
  */
-export const drawMesh = (predictions: FaceLandmarksPrediction[], context?: CanvasRenderingContext2D) => {
-  if ((predictions.length > 0) && context) {
+export const drawMesh = (
+  predictions: FaceLandmarksPrediction[],
+  context?: CanvasRenderingContext2D,
+  color?: string
+) => {
+  if (predictions.length > 0 && context) {
     predictions.forEach((prediction) => {
       const keypoints = (prediction.scaledMesh || [[], []]) as any[];
       const boundingBox = prediction?.boundingBox;
@@ -35,7 +45,7 @@ export const drawMesh = (predictions: FaceLandmarksPrediction[], context?: Canva
       const [dx, dy] = boundingBox.bottomRight as [number, number];
       const [width, height] = [dx - x, dy - y];
       const box = { x, y, width, height };
-      drawRectStroke([box])(context || undefined);
+      drawRect([box])(context || undefined, color);
 
       // // //  Draw Triangles
       for (let i = 0; i < TRIANGULATION.length / 3; i++) {
@@ -46,7 +56,7 @@ export const drawMesh = (predictions: FaceLandmarksPrediction[], context?: Canva
           TRIANGULATION[i * 3 + 2],
         ].map((index) => keypoints[index]);
         //  Draw triangle
-        drawPath(context, points, true);
+        drawPath(context, points, true, color);
       }
 
       // Draw Dots
@@ -55,22 +65,26 @@ export const drawMesh = (predictions: FaceLandmarksPrediction[], context?: Canva
         const y = keypoints[i][1];
         context.beginPath();
         context.arc(x, y, 1 /* radius */, 0, 3 * Math.PI);
-        context.fillStyle = "aqua";
+        context.fillStyle = color ?? 'aqua';
         context.fill();
       }
     });
   }
 };
 
-export const drawRectStroke = (
-  facePoints: { x: number, y: number, width: number, height: number }[],
-) => (context?: CanvasRenderingContext2D) => {
-  if (context) {
-    facePoints.forEach(({ x, y, width, height }) => {
-      if (x && y && width && height) {
-        context.strokeStyle = "green";
-        context.strokeRect(x, y, width, height);
-      }
-    });
-  }
-};
+/**
+ *
+ * @param facePoints
+ */
+export function drawRect(facePoints: FacePointsType[]) {
+  return (context?: CanvasRenderingContext2D, color?: string) => {
+    if (context) {
+      facePoints.forEach(({ x, y, width, height }) => {
+        if (x && y && width && height) {
+          context.strokeStyle = color ?? 'green';
+          context.strokeRect(x, y, width, height);
+        }
+      });
+    }
+  };
+}

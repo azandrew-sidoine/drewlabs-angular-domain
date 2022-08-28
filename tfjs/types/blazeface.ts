@@ -1,7 +1,7 @@
-import { BlazeFaceModel, NormalizedFace } from "@tensorflow-models/blazeface";
-import { AnnotatedPrediction } from "@tensorflow-models/face-landmarks-detection/dist/mediapipe-facemesh";
-import { Observable } from "rxjs";
-import { MLModelProvider } from "./model";
+import { BlazeFaceModel, NormalizedFace } from '@tensorflow-models/blazeface';
+import { Observable } from 'rxjs';
+import { FaceLandmarkPreditions } from './face-landmarks';
+import { MLModelProvider } from './model';
 
 export interface BlazeModelConfig {
   maxFaces?: number;
@@ -23,5 +23,5 @@ export interface BlazeFaceDetector extends MLModelProvider {
   detectFaces(
     input: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement,
     _interval: number
-  ): Observable<AnnotatedPrediction[] | undefined>;
+  ): Observable<FaceLandmarkPreditions[] | undefined>;
 }

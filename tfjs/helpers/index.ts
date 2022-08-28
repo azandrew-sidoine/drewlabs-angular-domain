@@ -1,1 +1,1 @@
-export { drawMesh, drawRectStroke} from "./drawing";
+export { drawMesh, drawRect} from "./drawing";

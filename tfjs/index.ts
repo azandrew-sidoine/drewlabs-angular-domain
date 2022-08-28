@@ -9,4 +9,5 @@ export {
   FaceMeshDetector,
   BlazeModelConfig,
   FaceLandmarksModelConfig,
+  FaceLandmarkPreditions
 } from "./types";

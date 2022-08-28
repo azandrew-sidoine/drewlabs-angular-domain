@@ -1,13 +1,13 @@
-import { ModuleWithProviders, NgModule } from "@angular/core";
-import { BLAZE_FACE, FACE_MESH } from "../types";
+import { ModuleWithProviders, NgModule } from '@angular/core';
+import { BLAZE_FACE, FACE_MESH } from '../types';
 import {
   BlazeFaceDetectorService,
   BlazeFacePointsDrawerService,
-} from "./blazeface.service";
+} from './blazeface.service';
 import {
   FaceMeshDetectorService,
   FaceMeshPointsDrawerService,
-} from "./facemesh.service";
+} from './facemesh.service';
 
 @NgModule({
   imports: [],
