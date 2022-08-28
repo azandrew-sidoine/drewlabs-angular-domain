@@ -1,4 +1,4 @@
-export { drawMesh, drawRectStroke } from "./helpers";
+export { drawMesh, drawRect } from "./helpers";
 export { estimateFaces as BlazePredict } from "./helpers/blazeface";
 export { estimateFaces as MeshPredict } from "./helpers/facemesh";
 // Export TFJS typings

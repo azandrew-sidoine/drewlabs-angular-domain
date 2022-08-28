@@ -45,7 +45,7 @@ export const drawMesh = (
       const [dx, dy] = boundingBox.bottomRight as [number, number];
       const [width, height] = [dx - x, dy - y];
       const box = { x, y, width, height };
-      drawRect([box])(context || undefined, color);
+      // drawRect([box])(context || undefined, color);
 
       // // //  Draw Triangles
       for (let i = 0; i < TRIANGULATION.length / 3; i++) {

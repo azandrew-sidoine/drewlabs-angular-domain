@@ -1,38 +1,52 @@
-import * as model from '@tensorflow-models/face-landmarks-detection';
-import { FaceLandmarksPrediction, SupportedPackages } from '@tensorflow-models/face-landmarks-detection';
+import * as m from '@tensorflow-models/face-landmarks-detection';
+import {
+  FaceLandmarksPrediction,
+  SupportedPackages,
+} from '@tensorflow-models/face-landmarks-detection';
 import { FaceLandmarksModelConfig } from '../types';
 
 /**
  * Load the facelandmarks detector model
  * @param type
  */
-export const loadModel = async (type?: SupportedPackages, config: FaceLandmarksModelConfig = { shouldLoadIrisModel: true }) => await model
-  .load(type || model.SupportedPackages.mediapipeFacemesh, {
-    ...config, shouldLoadIrisModel: config?.shouldLoadIrisModel || true
+export async function loadModel(
+  type?: SupportedPackages,
+  config: FaceLandmarksModelConfig = { shouldLoadIrisModel: true }
+) {
+  return await m.load(type || m.SupportedPackages.mediapipeFacemesh, {
+    ...config,
+    shouldLoadIrisModel: config?.shouldLoadIrisModel || true,
   });
+}
 
 /**
  * Predict face points using Face mesh model
- * @param model_
+ * @param model
  * @param element
  */
-export const predict = async (
-  model_: model.FaceLandmarksDetector,
-  element: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement | ImageData | undefined
-) => {
+export async function predict<
+  T extends
+    | HTMLVideoElement
+    | HTMLCanvasElement
+    | HTMLImageElement
+    | ImageData
+    | undefined
+>(model: m.FaceLandmarksDetector, element: T) {
   return new Promise<FaceLandmarksPrediction[] | undefined>((resolve, _) => {
     if (element) {
-      resolve(model_.estimateFaces({ input: element }));
+      resolve(model.estimateFaces({ input: element as any }));
     } else {
-      resolve(undefined);
+      resolve([]);
     }
-  })
-};
+  });
+}
 
 /**
  * Estimates face points on an HTML{Video|Canvas|Image}Element
  * @param element
  */
-export const estimateFaces = async (
-  element: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement
-) => await predict(await loadModel(), element);
+export async function estimateFaces<
+  T extends HTMLVideoElement | HTMLCanvasElement | HTMLImageElement
+>(element: T) {
+  return await predict(await loadModel(), element);
+}

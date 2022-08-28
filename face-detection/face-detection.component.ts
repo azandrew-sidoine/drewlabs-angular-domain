@@ -58,6 +58,7 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
 
   private _destroy$ = new Subject<void>();
   private _timeout$ = new Subject<void | number>();
+  private _timeout = false;
   @Output() public frontFaceDataURI = new EventEmitter<string>();
   @Output() public profilFaceDataURI = new EventEmitter<string>();
 
@@ -136,7 +137,8 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
       await forkJoin([
         this.faceMeshDetector.loadModel(undefined, {
           shouldLoadIrisModel: true,
-          scoreThreshold: this.confidenceScore ?? 0.95,
+          detectionConfidence: this.confidenceScore,
+          // scoreThreshold: this.confidenceScore ?? 0.95,
           // maxFaces: this.totalFaces ?? 3,
         }),
       ]).toPromise();
@@ -176,7 +178,13 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
                 this.detectFacesResultEvent.emit(this._detectFacesResult);
               }
             }, this.timeout)
-              .pipe(takeUntil(this._destroy$), tap(this._timeout$.next))
+              .pipe(
+                takeUntil(this._destroy$),
+                tap(() => {
+                  this._timeout = true;
+                  this._timeout$.next();
+                })
+              )
               .subscribe();
             const interval_ = getReadInterval();
             // Run the face mesh detector as well
@@ -186,13 +194,13 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
             this.faceMeshDetector
               .detectFaces(image, interval_)
               .pipe(
-                takeUntil(this._timeout$),
+                takeUntil(this._destroy$),
                 tap((result) =>
                   this.drawFacePredictions(
                     image,
                     this.canvasHTMLElement,
                     result,
-                    this.mergePreditions
+                    this.mergePreditions.bind(this)
                   )
                 )
               )
@@ -232,6 +240,7 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
   async reload(deviceId?: string | undefined) {
     this._timeout$.next();
     this._destroy$.next();
+    this._timeout = false;
     await this.initializeComponent(deviceId);
     this.runFaceDetection();
   }
@@ -242,9 +251,11 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
   }
 
   private mergePreditions(predition: FacePredictionsType) {
-    const currentState = this._state$.getValue();
-    const predictions = [...(currentState.predictions ?? []), predition];
-    this._state$.next({ ...currentState, predictions });
+    if (!this._timeout) {
+      const currentState = this._state$.getValue();
+      const predictions = [...(currentState.predictions ?? []), predition];
+      this._state$.next({ ...currentState, predictions });
+    }
   }
 
   private drawFacePredictions<
@@ -274,7 +285,7 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
         });
       }
       const context = canvasElement.getContext('2d') || undefined;
-      this.drawer.drawFacePoints(context)(predictions || []);
+      this.drawer.drawFacePoints(context)(predictions || [], '#f3da7f');
     });
   }
 

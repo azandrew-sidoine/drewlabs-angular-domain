@@ -8,7 +8,7 @@ import { FaceLandmarkPreditions } from './face-landmarks';
 import { MLModelProvider } from './model';
 
 export interface FaceLandmarksModelConfig {
-  confidence?: number;
+  detectionConfidence?: number;
   maxFaces?: number;
   scoreThreshold?: number;
   shouldLoadIrisModel: boolean;
