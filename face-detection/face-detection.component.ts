@@ -71,9 +71,6 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
   @Input() confidenceScore: number = 0.95;
   @Input() timeout: number = 7000;
 
-  private _detectFacesResult!: { size?: number; encodedURI?: string };
-  @Output() detectFacesResultEvent = new EventEmitter<DetectedFacesStateType>();
-  @Output() noFaceDetectedEvent = new EventEmitter<boolean>();
   @Output() videoStreamEvent = new EventEmitter<MediaStream>();
   @Output() stateChange = new EventEmitter<FaceDetectionComponentState>();
   @ContentChild('startFaceDetection') startFaceDetectionRef!: TemplateRef<any>;
@@ -170,13 +167,6 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
               // #region Timeout
               this.setState({ detecting: false });
               // #endregion Timeout
-              if (this._detectFacesResult) {
-                console.log(
-                  'Emitting detected face results',
-                  this._detectFacesResult
-                );
-                this.detectFacesResultEvent.emit(this._detectFacesResult);
-              }
             }, this.timeout)
               .pipe(
                 takeUntil(this._destroy$),
@@ -265,18 +255,9 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
     image: T,
     canvasElement: TCanvas,
     predictions: FaceLandmarkPreditions[] | undefined,
-    callback?: (state: FacePredictionsType) => void
+    callbackRef: (state: FacePredictionsType) => void
   ) {
     requestAnimationFrame(() => {
-      const callbackRef =
-        callback ??
-        ((state) => {
-          const { value: _predictions, image } = state;
-          this._detectFacesResult = {
-            size: _predictions.length,
-            encodedURI: image,
-          };
-        });
       const canvas = Video.writeToCanvas(image, canvasElement);
       if (predictions && predictions.length > 0) {
         callbackRef({
