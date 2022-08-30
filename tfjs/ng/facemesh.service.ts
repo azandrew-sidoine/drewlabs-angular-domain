@@ -73,9 +73,14 @@ export class FaceMeshDetectorService implements FaceMeshDetector, OnDestroy {
 export class FaceMeshPointsDrawerService {
   public drawFacePoints =
     (context?: CanvasRenderingContext2D) =>
-    (facePoints?: TypeFaceMeshPrediction[], color?: string) => {
+    (
+      facePoints?: TypeFaceMeshPrediction[],
+      color?: string,
+      drawBox: boolean = false,
+      lightPath: boolean = false
+    ) => {
       if (facePoints && context) {
-        drawMesh(facePoints, context || undefined, color);
+        drawMesh(facePoints, context || undefined, color, drawBox, lightPath);
       }
     };
 }

@@ -23,7 +23,6 @@ import { WEBCAM, Webcam } from '../webcam';
 import { Video } from '../webcam/helpers';
 import { deviceConstraintFactory, getReadInterval } from './helpers';
 import {
-  DetectedFacesStateType,
   FaceDetectionComponentState,
   FacePredictionsType,
 } from './types';
@@ -50,6 +49,8 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
   @Input() height: number = 240;
   @Input() initialDevice!: string | undefined;
   @Input() autostart: boolean = true;
+  @Input() drawBox: boolean = false;
+  @Input() lightPath: boolean = false;
 
   @ViewChild('videoElement') videoElement!: ElementRef;
   @ViewChild('canvasElement') canvasElement!: ElementRef;
@@ -266,7 +267,12 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
         });
       }
       const context = canvasElement.getContext('2d') || undefined;
-      this.drawer.drawFacePoints(context)(predictions || [], '#f3da7f');
+      this.drawer.drawFacePoints(context)(
+        predictions || [],
+        '#f3da7f',
+        this.drawBox,
+        this.lightPath
+      );
     });
   }
 

@@ -33,7 +33,9 @@ function drawPath(
 export const drawMesh = (
   predictions: FaceLandmarksPrediction[],
   context?: CanvasRenderingContext2D,
-  color?: string
+  color?: string,
+  drawBox: boolean = false,
+  lightPath: boolean = false
 ) => {
   if (predictions.length > 0 && context) {
     predictions.forEach((prediction) => {
@@ -41,22 +43,26 @@ export const drawMesh = (
       const boundingBox = prediction?.boundingBox;
 
       // Draw the bounding box
-      const [x, y] = boundingBox.topLeft as [number, number];
-      const [dx, dy] = boundingBox.bottomRight as [number, number];
-      const [width, height] = [dx - x, dy - y];
-      const box = { x, y, width, height };
-      // drawRect([box])(context || undefined, color);
+      if (drawBox !== false) {
+        const [x, y] = boundingBox.topLeft as [number, number];
+        const [dx, dy] = boundingBox.bottomRight as [number, number];
+        const [width, height] = [dx - x, dy - y];
+        const box = { x, y, width, height };
+        drawRect([box])(context || undefined, color);
+      }
 
       // // //  Draw Triangles
-      for (let i = 0; i < TRIANGULATION.length / 3; i++) {
-        // Get sets of three keypoints for the triangle
-        const points = [
-          TRIANGULATION[i * 3],
-          TRIANGULATION[i * 3 + 1],
-          TRIANGULATION[i * 3 + 2],
-        ].map((index) => keypoints[index]);
-        //  Draw triangle
-        drawPath(context, points, true, color);
+      if (lightPath === false) {
+        for (let i = 0; i < TRIANGULATION.length / 3; i++) {
+          // Get sets of three keypoints for the triangle
+          const points = [
+            TRIANGULATION[i * 3],
+            TRIANGULATION[i * 3 + 1],
+            TRIANGULATION[i * 3 + 2],
+          ].map((index) => keypoints[index]);
+          //  Draw triangle
+          drawPath(context, points, true, color);
+        }
       }
 
       // Draw Dots
