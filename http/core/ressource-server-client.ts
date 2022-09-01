@@ -32,6 +32,14 @@ export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHt
       ) as Observable<IHttpResponse<any>>;
   }
 
+  createID(path: string, id: string | number, body: RequestBody, params?: object) {
+    return this.httpClient.post(`${path}/${id}`, body, params)
+      .pipe(
+        doLog(`/POST ${path}/${id} - Request response: `),
+        // mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
+      ) as Observable<IHttpResponse<any>>;
+  }
+
   /**
    * @inheritdoc
    */
