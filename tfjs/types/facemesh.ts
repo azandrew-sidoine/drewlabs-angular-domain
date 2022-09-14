@@ -30,4 +30,8 @@ export interface FaceMeshDetector extends MLModelProvider {
     input: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement,
     _interval: number
   ): Observable<FaceLandmarkPreditions[] | undefined>;
+
+  predict(
+    input: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement
+  ): Promise<FaceLandmarkPreditions[] | undefined>;
 }

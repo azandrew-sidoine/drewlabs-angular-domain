@@ -1,7 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { interval } from 'rxjs';
+import { EMPTY, from, interval } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
-import { emptyObservable, observableFrom } from '../../rxjs/helpers';
 import { Video } from '../../webcam/helpers';
 import { drawRect } from '../helpers';
 import { loadModel, predict } from '../helpers/blazeface';
@@ -13,44 +12,42 @@ import {
 
 @Injectable()
 export class BlazeFaceDetectorService implements OnDestroy {
-  _model!: TypeBlazeDetector | undefined;
+  model!: TypeBlazeDetector | undefined;
 
   public loadModel = (type?: BlazeModelConfig) => {
-    const result$ = observableFrom(loadModel(type)).pipe(
-      tap((model) => (this._model = model))
-    );
+    const result$ = from(loadModel(type));
+    result$.pipe(tap((model) => (this.model = model)));
     return result$;
   };
 
   getModel() {
-    return this._model;
+    return this.model;
   }
 
-  public deleteModel = () => (this._model = undefined);
+  public deleteModel = () => (this.model = undefined);
 
-  public detectFaces = (
+  public detectFaces(
     input: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement,
     _interval: number
-  ) => {
-    if (this._model) {
-      return interval(_interval).pipe(
-        mergeMap((_) => {
-          if (this._model) {
-            return observableFrom(
-              predict(
-                this._model,
-                input instanceof HTMLVideoElement ? Video.read(input) : input
-              )
-            );
-          }
-          return emptyObservable();
-        })
+  ) {
+    return interval(_interval).pipe(
+      mergeMap(() => (this.model && input ? from(this.predict(input)) : EMPTY))
+    );
+  }
+
+  predict(
+    input: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement
+  ) {
+    if (this.model) {
+      return predict(
+        this.model,
+        input instanceof HTMLVideoElement ? Video.read(input) : input
       );
     }
     throw new Error(
       'Model must be loaded before calling the detector function... Call loadModel() before calling this detectFaces()'
     );
-  };
+  }
 
   ngOnDestroy(): void {
     this.deleteModel();

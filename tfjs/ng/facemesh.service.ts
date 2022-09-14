@@ -38,29 +38,28 @@ export class FaceMeshDetectorService implements FaceMeshDetector, OnDestroy {
   }
 
   //
-  public detectFaces = (
+  public detectFaces(
     input: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement,
     _interval: number
-  ) => {
+  ) {
+    return interval(_interval).pipe(
+      mergeMap(() => (this.model && input ? from(this.predict(input)) : EMPTY))
+    );
+  }
+
+  predict(
+    input: HTMLVideoElement | HTMLCanvasElement | HTMLImageElement
+  ) {
     if (this.model) {
-      return interval(_interval).pipe(
-        mergeMap((_) => {
-          if (this.model && input) {
-            return from(
-              predict(
-                this.model,
-                input instanceof HTMLVideoElement ? Video.read(input) : input
-              )
-            );
-          }
-          return EMPTY;
-        })
+      return predict(
+        this.model,
+        input instanceof HTMLVideoElement ? Video.read(input) : input
       );
     }
     throw new Error(
       'Model must be loaded before calling the detector function... Call loadModel() before calling this detectFaces()'
     );
-  };
+  }
 
   ngOnDestroy(): void {
     this.deleteModel();

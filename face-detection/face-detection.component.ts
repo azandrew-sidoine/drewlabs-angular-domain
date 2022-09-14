@@ -12,8 +12,8 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
-import { forkJoin, Subject } from 'rxjs';
-import { filter, takeUntil, tap } from 'rxjs/operators';
+import { forkJoin, interval, Subject, throwError } from 'rxjs';
+import { catchError, filter, takeUntil, tap } from 'rxjs/operators';
 import { createStateful, rxTimeout } from '../rxjs/helpers';
 import { untilDestroyed } from '../rxjs/operators';
 import { FaceMeshDetector, FACE_MESH, FaceLandmarkPreditions } from '../tfjs';
@@ -22,10 +22,7 @@ import { Canvas } from '../utils/browser';
 import { WEBCAM, Webcam } from '../webcam';
 import { Video } from '../webcam/helpers';
 import { deviceConstraintFactory, getReadInterval } from './helpers';
-import {
-  FaceDetectionComponentState,
-  FacePredictionsType,
-} from './types';
+import { FaceDetectionComponentState, FacePredictionsType } from './types';
 
 @Component({
   selector: 'app-face-detection',
@@ -58,8 +55,7 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
   @ViewChild('sceneImage') sceneImage!: ElementRef;
 
   private _destroy$ = new Subject<void>();
-  private _timeout$ = new Subject<void | number>();
-  private _timeout = false;
+  private hasTimeout = false;
   @Output() public frontFaceDataURI = new EventEmitter<string>();
   @Output() public profilFaceDataURI = new EventEmitter<string>();
 
@@ -87,6 +83,8 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
     predictions: [],
   });
   state$ = this._state$.asObservable();
+
+  private _predictions: FacePredictionsType[] = [];
 
   constructor(
     @Inject(WEBCAM) private camera: Webcam,
@@ -150,8 +148,9 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
 
   async runFaceDetection(deviceID?: string) {
     try {
+      this._predictions = [];
       // #region loading the camera
-      this.setState({ loadingCamera: true });
+      this.setState({ loadingCamera: true, predictions: [] });
       // #endregion loading the camera
       await this.camera.startCamera(
         this.videoHTMLElement,
@@ -163,37 +162,30 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
           this.videoStreamEvent.next(_);
           const image = dst as HTMLVideoElement;
           if (image && this.canvasHTMLElement) {
-            // Wait for certain time before detecting client faces
-            rxTimeout(() => {
-              // #region Timeout
-              this.setState({ detecting: false });
-              // #endregion Timeout
-            }, this.timeout)
-              .pipe(
-                takeUntil(this._destroy$),
-                tap(() => {
-                  this._timeout = true;
-                  this._timeout$.next();
-                })
-              )
-              .subscribe();
+            this.startDetectionTimeout();
             const interval_ = getReadInterval();
             // Run the face mesh detector as well
             // #region Detecting faces
             this.setState({ detecting: true });
             // #endregion Detecting faces
-            this.faceMeshDetector
-              .detectFaces(image, interval_)
+            interval(interval_)
               .pipe(
                 takeUntil(this._destroy$),
-                tap((result) =>
+                tap(async () => {
+                  this.clearCanvas(this.canvasHTMLElement);
+                  this.drawImage(image, this.canvasHTMLElement);
+                  const predictions = await this.faceMeshDetector.predict(
+                    image
+                  );
                   this.drawFacePredictions(
-                    image,
                     this.canvasHTMLElement,
-                    result,
-                    this.mergePreditions.bind(this)
-                  )
-                )
+                    predictions,
+                    this.mergePredictions.bind(this)
+                  );
+                }),
+                catchError((err) => {
+                  return throwError(() => err);
+                })
               )
               .subscribe();
           }
@@ -216,11 +208,8 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
    * @param deviceId
    */
   async switchCamera(deviceId: string | undefined) {
-    // TODO : START SWITCHING CAMERA
     this.setState({ switchingCamera: true });
-    // TODO : RELOAD WEBCAM WITH FACE DETECTION VIEW
     await this.reload(deviceId);
-    // TODO : END SWITCHING CAMERA
     this.setState({ switchingCamera: false });
   }
 
@@ -229,9 +218,7 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
    * @param deviceId
    */
   async reload(deviceId?: string | undefined) {
-    this._timeout$.next();
     this._destroy$.next();
-    this._timeout = false;
     await this.initializeComponent(deviceId);
     this.runFaceDetection();
   }
@@ -241,39 +228,75 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
     this._state$.next({ ...currentState, ...state });
   }
 
-  private mergePreditions(predition: FacePredictionsType) {
-    if (!this._timeout) {
-      const currentState = this._state$.getValue();
-      const predictions = [...(currentState.predictions ?? []), predition];
-      this._state$.next({ ...currentState, predictions });
+  private mergePredictions(prediction: FacePredictionsType) {
+    if (!this.hasTimeout) {
+      this._predictions.push(prediction);
     }
   }
 
-  private drawFacePredictions<
+  private startDetectionTimeout() {
+    this.hasTimeout = false;
+    // Wait for certain time before detecting client faces
+    rxTimeout(() => {
+      // #region Timeout
+      this.setState({
+        detecting: false,
+        predictions: this._predictions,
+      });
+      // #endregion Timeout
+    }, this.timeout)
+      .pipe(
+        takeUntil(this._destroy$),
+        tap(() => {
+          this.hasTimeout = true;
+        })
+      )
+      .subscribe();
+  }
+
+  private clearCanvas<TCanvas extends HTMLCanvasElement = HTMLCanvasElement>(
+    canvas: TCanvas
+  ) {
+    const context = canvas.getContext('2d') ?? undefined;
+    if (context) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  private drawImage<
     T extends HTMLVideoElement = HTMLVideoElement,
     TCanvas extends HTMLCanvasElement = HTMLCanvasElement
+  >(image: T, canvasElement: TCanvas) {
+    return Video.writeToCanvas(image, canvasElement);
+  }
+
+  private drawFacePredictions<
+    TCanvas extends HTMLCanvasElement = HTMLCanvasElement
   >(
-    image: T,
-    canvasElement: TCanvas,
+    canvas: TCanvas,
     predictions: FaceLandmarkPreditions[] | undefined,
     callbackRef: (state: FacePredictionsType) => void
   ) {
-    requestAnimationFrame(() => {
-      const canvas = Video.writeToCanvas(image, canvasElement);
-      if (predictions && predictions.length > 0) {
-        callbackRef({
-          value: predictions,
-          image: Canvas.readAsDataURL(canvas),
-        });
-      }
-      const context = canvasElement.getContext('2d') || undefined;
-      this.drawer.drawFacePoints(context)(
-        predictions || [],
-        '#f3da7f',
-        this.drawBox,
-        this.lightPath
-      );
-    });
+    // requestAnimationFrame(() => {
+    // To limit resource used by the component when timeout, we stop drawing facepoint on image
+    const context = canvas.getContext('2d') ?? undefined;
+    if (
+      predictions &&
+      predictions.length > 0 &&
+      predictions[0].faceInViewConfidence >= 0.95
+    ) {
+      callbackRef({
+        value: predictions,
+        image: Canvas.readAsDataURL(canvas),
+      });
+    }
+    this.drawer.drawFacePoints(context)(
+      predictions || [],
+      '#f3da7f',
+      this.drawBox,
+      this.lightPath
+    );
+    // });
   }
 
   canvasCss(state: FaceDetectionComponentState) {
@@ -283,7 +306,7 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this._timeout$.next();
+    this._predictions = [];
     this._destroy$.next();
     this.camera.stopCamera();
   }
