@@ -1,8 +1,8 @@
-import { isDefined, isObject } from "../../utils/types/type-utils";
-import { IHttpResponse, statusOk } from "../contracts/types";
-import { ErrorHandler } from "../contracts/error-handler";
-import { HttpErrorResponse } from "@angular/common/http";
-import { HttpResponseStatusCode } from "../contracts";
+import { isDefined, isObject } from '../../utils/types/type-utils';
+import { IHttpResponse } from '../contracts/types';
+import { ErrorHandler } from '../contracts/error-handler';
+import { HttpErrorResponse } from '@angular/common/http';
+import { HttpResponseStatusCode } from '../contracts';
 
 /**
  * @description Utilities function for getting exact response data from an IHttpReponse data property
@@ -10,7 +10,7 @@ import { HttpResponseStatusCode } from "../contracts";
  */
 export const getResponseDataFromHttpResponse = (
   state: IHttpResponse<any> | any,
-  innerKey = "data"
+  innerKey = 'data'
 ) => {
   return isDefined(state.data) &&
     isObject(state.data) &&
@@ -40,16 +40,29 @@ export const defaultHttpErrorHandler = (client: ErrorHandler, err: any) => {
   }
 };
 
-export const isServerErrorResponse = (status: number) =>
-  status === HttpResponseStatusCode.SERVER_ERROR ||
-  status === HttpResponseStatusCode.UNKNOWN;
+export function isServerErrorResponse(status: number) {
+  return (
+    Number(status) === Number(HttpResponseStatusCode.SERVER_ERROR) ||
+    Number(status) === Number(HttpResponseStatusCode.UNKNOWN)
+  );
+}
 
 /**
  * @description Checks if the request response status code equals HTTP OK status code
- * @param statusCode Reponse status code
+ * @param status Reponse status code
  */
-export const responseStatusOK: statusOk = (status: number | string) =>
-  status === HttpResponseStatusCode.STATUS_OK;
+export function responseStatusOK(status: number | string) {
+  return Number(status) === Number(HttpResponseStatusCode.STATUS_OK);
+}
 
-export const isServerBadRequest = (status: number) =>
-  status === HttpResponseStatusCode.BAD_REQUEST;
+/**
+ *
+ * @param status
+ */
+export function isServerBadRequest(status: number) {
+  return Number(status) === Number(HttpResponseStatusCode.BAD_REQUEST);
+}
+
+export function isUnAuthorizedResponse(status: number) {
+  return Number(status) === Number(HttpResponseStatusCode.UNAUTHORIZED);
+}

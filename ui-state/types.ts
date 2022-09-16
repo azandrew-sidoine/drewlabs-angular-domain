@@ -23,7 +23,7 @@ export enum UIStateStatusCode {
   UNAUTHORIZED = 401,
   AUTHENTICATED = 202,
   UNAUTHENTICATED = 403,
-  BAD = 422 || 400,
+  BAD = 400 || 422 || 401,
   OK = 200 || 201,
   ERROR = 500,
 }

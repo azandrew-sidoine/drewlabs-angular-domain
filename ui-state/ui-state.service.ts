@@ -1,9 +1,9 @@
-import { Injectable } from "@angular/core";
-import { Observable, ReplaySubject } from "rxjs";
-import { startWith } from "rxjs/operators";
-import { isServerErrorResponse } from "../http";
-import { HTTPErrorState } from "../http/contracts";
-import { UIState, UIStateProvider, UIStateStatusCode } from "./types";
+import { Injectable } from '@angular/core';
+import { Observable, ReplaySubject } from 'rxjs';
+import { startWith } from 'rxjs/operators';
+import { isServerErrorResponse, isUnAuthorizedResponse } from '../http';
+import { HTTPErrorState } from '../http/contracts';
+import { UIState, UIStateProvider, UIStateStatusCode } from './types';
 
 const initialUIState: UIState = {
   performingAction: false,
@@ -20,6 +20,8 @@ export const uiStatusUsingHttpErrorResponse = (
 ) =>
   isServerErrorResponse(httpErrorState.status)
     ? UIStateStatusCode.ERROR
+    : isUnAuthorizedResponse(httpErrorState.status)
+    ? UIStateStatusCode.UNAUTHORIZED
     : UIStateStatusCode.BAD;
 
 @Injectable()

@@ -4,6 +4,7 @@ export {
   isServerErrorResponse,
   responseStatusOK,
   isServerBadRequest,
-} from "./response";
+  isUnAuthorizedResponse,
+} from './response';
 
-export { httpHost } from "./client";
+export { httpHost } from './client';
