@@ -1,6 +1,4 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { createSubject } from '../rxjs/helpers';
-import { Log } from '../utils';
 import { Base64 } from '../utils/io';
 import {
   MediaRecorder as MediaRecorderInterface,
@@ -26,12 +24,13 @@ export class Recorder implements MediaRecorderInterface, OnDestroy {
   // Initial recorder state
   private _state!: RecorderState;
 
-  // Recorded content stream
-  private readonly _stream$ = createSubject<Blob>();
-  public stream$ = this._stream$.asObservable();
+  // // Recorded content stream
+  // private readonly _stream$ = createSubject<Blob>();
+  // public stream$ = this._stream$.asObservable();
 
   // Instance initializer
   private constructor(private recorder?: MediaRecorder) {
+    // Initialize the recorder object
     this.setState(initState);
     this.recorder?.addEventListener('dataavailable', this.onData.bind(this));
     this.recorder?.addEventListener('pause', this.onPause.bind(this));
@@ -59,46 +58,32 @@ export class Recorder implements MediaRecorderInterface, OnDestroy {
   }
 
   private onData(ev: BlobEvent) {
+    console.log('Data event fired: ', ev);
     const buffer = [...(this._state.buffer || []), ev.data];
-    this._stream$.next(
-      new Blob(buffer || [], { type: this.recorder?.mimeType })
-    );
-    this.setState({
-      buffer,
-    });
+    this.setState({ buffer });
   }
 
   private onPause(e: Event) {
-    this.setState({
-      paused: true,
-    });
+    this.setState({ paused: true });
     e.preventDefault();
   }
 
   private onResume(e: Event) {
-    this.setState({
-      paused: false,
-    });
+    this.setState({ paused: false });
     e.preventDefault();
   }
 
   private onStop(e: Event) {
-    this._stream$.next(this.toBlob());
     e.preventDefault();
   }
 
   public start(timeslice?: number | undefined) {
-    this.setState({
-      recording: true,
-    });
+    this.setState({ recording: true });
     this.recorder?.start(timeslice);
   }
 
   public stop() {
-    if (
-      this.recorder &&
-      (this.recorder.state === 'recording' || this.recorder.state === 'paused')
-    ) {
+    if (this.recorder && this.isRunning()) {
       this.recorder.stop();
     }
   }
@@ -111,20 +96,27 @@ export class Recorder implements MediaRecorderInterface, OnDestroy {
   }
 
   public resume() {
-    if (!this.recorder) {
-      throw new Error('Recorder is not available...');
+    if (this.recorder && this.isPaused()) {
+      this.recorder?.resume();
     }
-    this.recorder?.resume();
+    throw new Error(
+      this.recorder
+        ? 'Cannot resume a running recording'
+        : 'Recorder is not available...'
+    );
   }
 
   public toBlob() {
-    if (!this.recorder) {
-      throw new Error('Recorder is not available...');
+    if (this.recorder && this._state.buffer) {
+      return new Blob(this._state.buffer, {
+        type: this.recorder?.mimeType,
+      });
     }
-    this._state.buffer;
-    return new Blob([...(this._state.buffer || [])], {
-      type: this.recorder?.mimeType,
-    });
+    throw new Error(
+      this.recorder
+        ? 'Error while recording, no data available'
+        : 'Recorder is not available...'
+    );
   }
 
   public async toDataURL() {
@@ -141,13 +133,15 @@ export class Recorder implements MediaRecorderInterface, OnDestroy {
   }
 
   public reset() {
-    // const stream = this.recorder?.stream;
     this.setState(initState);
   }
 
   dispose() {
     if (this.recorder) {
-      this.recorder.removeEventListener('dataavailable', this.onData.bind(this));
+      this.recorder.removeEventListener(
+        'dataavailable',
+        this.onData.bind(this)
+      );
       this.recorder.removeEventListener('pause', this.onPause.bind(this));
       this.recorder.removeEventListener('resume', this.onResume.bind(this));
       this.recorder.removeEventListener('stop', this.onStop.bind(this));
@@ -160,5 +154,16 @@ export class Recorder implements MediaRecorderInterface, OnDestroy {
     if (this.recorder) {
       this.dispose();
     }
+  }
+
+  /**
+   * @description Check if the recorder is in running state or not. Being in
+   * running state means the recorder is `recording` or is paused
+   */
+  private isRunning() {
+    return (
+      this.recorder &&
+      (this.recorder.state === 'recording' || this.recorder.state === 'paused')
+    );
   }
 }

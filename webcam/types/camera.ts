@@ -2,8 +2,8 @@ import { Observable } from "rxjs";
 import { VideoConstraints } from "./constraints";
 
 export type OnVideoStreamHandlerFn = (
-  source: MediaStream | any,
-  dest: any
+  source: MediaStream,
+  dest: HTMLVideoElement
 ) => void;
 
 /**

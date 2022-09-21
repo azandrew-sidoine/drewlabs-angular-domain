@@ -20,8 +20,9 @@ export class WebcamService implements Webcam, OnDestroy {
 
   onVideoCanPlay() {
     if (this.onVideoStreamCallback) {
-      this.onVideoStreamCallback(this.mediaStream, this.videoElement);
-
+      if (this.mediaStream && this.videoElement) {
+        this.onVideoStreamCallback(this.mediaStream, this.videoElement);
+      }
       this.navigator.mediaDevices.enumerateDevices().then((devices) => {
         this._videoDevices$.next(
           devices.filter((value) => value.kind === 'videoinput')
@@ -112,8 +113,11 @@ export class WebcamService implements Webcam, OnDestroy {
           this.videoElement = video;
           this.mediaStream = stream;
           this.onVideoStreamCallback = callback;
-          // this.videoElement.disablePictureInPicture = true;
-          video.addEventListener('canplay', this.onVideoCanPlay.bind(this), false);
+          video.addEventListener(
+            'canplay',
+            this.onVideoCanPlay.bind(this),
+            false
+          );
           video.addEventListener('pause', () => video.play());
           resolve();
         })
@@ -134,12 +138,15 @@ export class WebcamService implements Webcam, OnDestroy {
     if (this.videoElement) {
       this.videoElement.pause();
       this.videoElement.srcObject = null;
-      this.videoElement.removeEventListener('canplay',this.onVideoCanPlay.bind(this));
+      this.videoElement.removeEventListener(
+        'canplay',
+        this.onVideoCanPlay.bind(this)
+      );
       this.videoElement = null;
     }
     if (this.mediaStream && this.mediaStream.active) {
       this.mediaStream.getTracks().forEach((track) => track.stop());
-      this.mediaStream.getVideoTracks().forEach(track => track.stop());
+      this.mediaStream.getVideoTracks().forEach((track) => track.stop());
       this.mediaStream = undefined;
     }
   }

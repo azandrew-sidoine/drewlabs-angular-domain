@@ -1,4 +1,3 @@
-import { Observable } from "rxjs";
 
 /**
  * Type definitions during development
@@ -20,9 +19,6 @@ interface Disposable {
 export type MediaRecorderConfig = MediaRecorderOptions;
 
 export interface MediaRecorder extends Disposable {
-  // Stream of recorded content
-  stream$: Observable<Blob>;
-
   /**
    * @description Start recording from a given timeslice
    * @param timeslice

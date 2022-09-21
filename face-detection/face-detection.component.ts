@@ -155,12 +155,11 @@ export class FaceDetectionComponent implements OnInit, OnDestroy {
       await this.camera.startCamera(
         this.videoHTMLElement,
         'custom',
-        (_, dst) => {
+        (stream, image) => {
           // #region loading the camera
           this.setState({ loadingCamera: false, hasCanvas: true });
           // #endregion loading the camera
-          this.videoStreamEvent.next(_);
-          const image = dst as HTMLVideoElement;
+          this.videoStreamEvent.next(stream);
           if (image && this.canvasHTMLElement) {
             this.startDetectionTimeout();
             const interval_ = getReadInterval();
