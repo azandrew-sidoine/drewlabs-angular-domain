@@ -39,12 +39,16 @@ export const authenticatingAction = (store: DrewlabsFluxStore<Partial<AuthState>
   });
 
 export const authenticationRequestCompletedAction = (store: DrewlabsFluxStore<Partial<AuthState>, Partial<AuthStateAction>>) =>
+  // console.log(store)
   createAction(store, (payload: boolean) => {
+    console.log("HHHHHHH",store)
     return {
       type: AuthStoreActions.AUTHENTICATION_REQUEST_COMPLETED,
       payload
     };
   });
+
+
 
 export const intitAuthStateAction = (store: DrewlabsFluxStore<Partial<AuthState>, Partial<AuthStateAction>>) =>
   createAction(store, (payload: Partial<AuthState>) => {

@@ -32,6 +32,7 @@ export const userCanAny = (authorizable: Authorizable, authorizations: string[])
  * @description Handler function checking if a given user has the provided authorization
  */
 export const userCan = (authorizable: Authorizable, authorization: string) => {
+  console.log("AUTHTHT",authorizable)
   return authorizable.authorizations.indexOf(authorization) !== -1;
 };
 

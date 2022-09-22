@@ -30,7 +30,9 @@ export class UserStorageProvider implements IUserStorageHandler {
    */
   addUserToCache = (params: IAppUser) => {
     this._appUser$.next(params);
-    this.cache.set(AuthStorageConfig.USER_STORAGE_KEY, this.serializer.toSerialized(params));
+    this.cache.set(AuthStorageConfig.USER_STORAGE_KEY, params);
+    // this.cache.set(AuthStorageConfig.USER_STORAGE_KEY, this.serializer.toSerialized(params));
+    console.log("PARMASAS", this.serializer.toSerialized(params))
   }
   /**
    * @inheritdoc

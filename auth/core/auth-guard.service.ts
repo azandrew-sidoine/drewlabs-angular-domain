@@ -119,6 +119,7 @@ export class AuthorizationsGuard implements CanActivate {
     return this.auth.state$
       .pipe(
         mergeMap(source => {
+          console.log("SLIMTEST", source)
           if (!isDefined(source.user)) {
             this.router.navigate([AuthPathConfig.REDIRECT_PATH]);
             return of(false);
@@ -126,13 +127,16 @@ export class AuthorizationsGuard implements CanActivate {
           let isAuthorized = false;
           if (authorizations && authorizations instanceof Array) {
             isAuthorized = (userCanAny(source.user as Authorizable, authorizations));
+            console.log("RESPONSE", source.user)
           } else {
             isAuthorized = (userCan(source.user as Authorizable, authorizations as string));
+            console.log("RESPONSE", source.user)
           }
           if (!isAuthorized) {
             // Navigate to the login page with extras
             this.router.navigate([AuthPathConfig.REDIRECT_PATH]);
             return of(false);
+            console.log("NONRESPONSE", source.user)
           }
           return of(true);
         })
