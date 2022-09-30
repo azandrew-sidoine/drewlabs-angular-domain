@@ -5,11 +5,12 @@ import { mapToHttpResponse } from '../../rxjs/operators/map-to-response-type';
 import { IResourcesServerClient } from '../contracts/resource/ressource-server-client';
 import { Injectable, Inject } from '@angular/core';
 import { RequestBody, TransformResponseHandlerFn } from '../contracts/resource';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { doLog } from '../../rxjs/operators';
 import { UIStateStatusCode } from '../../contracts/ui-state';
 import { isBadRequest, isServerError } from './helpers';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
+import * as saveAs from 'file-saver';
 
 @Injectable()
 export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHttpResponse<any>> {
@@ -62,6 +63,21 @@ export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHt
         doLog(`/GET ${path}/${id} - Request response: `),
         // mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
       ) as Observable<IHttpResponse<any>>;
+  }
+
+  downloadFile(path: string, id: string | number, params?: object) {
+
+    const url = `${path}/${id}`;
+    const headers = new HttpHeaders();
+    headers.append('Accept', 'text/plain');
+    headers.append('Content-type', 'application/octet-stream');
+    const httpOptions = {
+      responseType: 'blob'
+    };
+    return this.httpClient.get(url, httpOptions).pipe(map(response => {
+      const blob = new Blob([response], { type: 'application/octet-stream' });
+      saveAs(blob, 'test.pdf');
+    }));
   }
 
   /**
