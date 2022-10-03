@@ -1,25 +1,25 @@
-import { Inject, Injectable, OnDestroy } from "@angular/core";
-import { tap, startWith, takeUntil, map } from "rxjs/operators";
-import { createSubject } from "src/app/lib/core/rxjs/helpers";
-import { createStore } from "src/app/lib/core/rxjs/state/rx-state";
-import { SessionStorage } from "src/app/lib/core/storage/core";
+import { Inject, Injectable, OnDestroy } from '@angular/core';
+import { tap, startWith, takeUntil, map } from 'rxjs/operators';
+import { createSubject } from 'src/app/lib/core/rxjs/helpers';
+import { createStore } from 'src/app/lib/core/rxjs/state/rx-state';
+import { SessionStorage } from 'src/app/lib/core/storage/core';
 import {
   DEFAULT_POSITION_OPTIONS,
   GEOLOCATION,
   IS_GEOLOCATION_SUPPORTED,
-} from "../tokens/geolocation";
-import { GeolocationState, onGeolocationPositionAction } from "./actions";
-import { geolocationReducer } from "./reducers";
+} from '../tokens/geolocation';
+import { GeolocationState, onGeolocationPositionAction } from './actions';
+import { geolocationReducer } from './reducers';
 import {
   HttpInterceptor,
   HttpRequest,
   HttpHandler,
-} from "@angular/common/http";
-import { doLog } from "src/app/lib/core/rxjs/operators";
-import { isDefined } from "../../../types";
-import { isEmpty } from "lodash";
+} from '@angular/common/http';
+import { doLog } from 'src/app/lib/core/rxjs/operators';
+import { isDefined } from '../../../types';
+import { isEmpty } from 'lodash';
 
-const BROWSER_POSITION_SESSION_KEY = "CLIENT_GEOLOCATION_LOCATION";
+const BROWSER_POSITION_SESSION_KEY = 'CLIENT_GEOLOCATION_LOCATION';
 
 interface GeoPosition {
   coords?: Partial<{
@@ -58,7 +58,7 @@ export class GeolocationService implements OnDestroy {
     map((state) => state?.position),
     takeUntil(
       this._destroy$.pipe(
-        doLog("Clearing data..."),
+        doLog('Clearing data...'),
         tap((_) => {
           this.geolocationRef.clearWatch(this._watchPositionId);
           this.session.delete(BROWSER_POSITION_SESSION_KEY);
@@ -66,7 +66,7 @@ export class GeolocationService implements OnDestroy {
       )
     ),
     // distinctUntilChanged((x, y) => (x?.position?.coords?.altitude === y?.position?.coords?.altitude) && (x?.position?.coords?.longitude === y?.position?.coords?.longitude)),
-    doLog("Setting Browser location: "),
+    doLog('Setting Browser location: '),
     tap((state) => {
       if (state) {
         this.setPosition(state);
@@ -103,7 +103,7 @@ export class GeolocationService implements OnDestroy {
     private session: SessionStorage
   ) {
     if (!isGeolocationSupported) {
-      this._changes$.error("Geolocation is not supported in your browser");
+      this._changes$.error('Geolocation is not supported in your browser');
     }
     this._watchPositionId = this.geolocationRef.watchPosition(
       (position) => {
@@ -160,13 +160,14 @@ export class GeolocationInterceptorService implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     const position = this.service.getPosition();
     if (position) {
+      let headers = req.headers.set(
+        'X-CLIENT-LAT',
+        `${position?.coords?.latitude}`
+      );
+      headers = headers.set('X-CLIENT-LONG', `${position?.coords?.longitude}`);
       // Clone the request and replace the original headers with
       // cloned headers, updated with the authorization.
-      req = req.clone({
-        headers: req.headers
-          .set("X-CLIENT-LAT", `${position?.coords?.latitude}`)
-          .set("X-CLIENT-LONG", `${position?.coords?.longitude}`),
-      });
+      req = req.clone({ headers });
     }
     return next.handle(req);
   }

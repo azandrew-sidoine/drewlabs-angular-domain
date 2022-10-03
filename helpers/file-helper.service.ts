@@ -35,7 +35,12 @@ export interface UploadedFileHelperInterface {
    * @param filename [[string]]
    */
   // tslint:disable-next-line: typedef
-  urlToFileFileRessource(url: string, filename: string, shouldDownload?: boolean, extension?: string): Promise<IFileRessource>;
+  urlToFileFileRessource(
+    url: string,
+    filename: string,
+    shouldDownload?: boolean,
+    extension?: string
+  ): Promise<IFileRessource>;
 
   /**
    * @description Use Browser API for saving a base64 string as a blob file
@@ -56,24 +61,27 @@ export interface UploadedFileHelperInterface {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FileHelperService implements UploadedFileHelperInterface {
-
   /**
    * @description Instance constructor
    */
-  constructor(private client: HttpRequestService) { }
+  constructor(private client: HttpRequestService) {}
 
   /**
    * @inheritdoc
    */
   async loadFileAsDataURI(url: string): Promise<string> {
-    const blob = await this.client.loadServerFile(url) as Blob;
-    const matches = blob.type?.match(/video\/x-matroska(;([\w]{1,})=?(([\w]{1,}))?)?/)?.length;
+    const blob = (await this.client.loadServerFile(url)) as Blob;
+    const matches = blob.type?.match(
+      /video\/x-matroska(;([\w]{1,})=?(([\w]{1,}))?)?/
+    )?.length;
     const type = matches ? 'video/webm' : blob.type;
     const data = await readFileAsDataURI(blob);
-    return `data:${type.endsWith(';') ? type.substring(0, type.length - 1) : type};base64,${after("base64,", data)}`;
+    return `data:${
+      type.endsWith(';') ? type.substring(0, type.length - 1) : type
+    };base64,${after('base64,', data)}`;
   }
 
   /**
@@ -81,21 +89,22 @@ export class FileHelperService implements UploadedFileHelperInterface {
    */
   // tslint:disable-next-line: typedef
   async urlToFileFileRessource(
-    url: string, filename: string,
+    url: string,
+    filename: string,
     shouldDownload: boolean = false,
     extension?: string
   ) {
-    const v = await this.loadFileAsDataURI(url);
-    if (v) {
-      const block = v.split(';');
+    const content = await this.loadFileAsDataURI(url);
+    if (content) {
+      const block = content.split(';');
       // Get the content type of the image
       const contentType = block[0].split(':')[1];
       return {
         name: filename,
-        content: v,
+        content,
         type: contentType,
         showldownload: shouldDownload,
-        extension
+        extension,
       } as IFileRessource;
     }
     return null;
@@ -105,11 +114,17 @@ export class FileHelperService implements UploadedFileHelperInterface {
    */
   // tslint:disable-next-line: typedef
   async urlToServerFileInterface(
-    url: string, { id, name, shouldDownload, extension }: Partial<{
-      id: number | string,
-      name: string,
-      shouldDownload: boolean,
-      extension: string
+    url: string,
+    {
+      id,
+      name,
+      shouldDownload,
+      extension,
+    }: Partial<{
+      id: number | string;
+      name: string;
+      shouldDownload: boolean;
+      extension: string;
     }>
   ) {
     const v = await this.loadFileAsDataURI(url);
@@ -123,7 +138,7 @@ export class FileHelperService implements UploadedFileHelperInterface {
         content: v,
         type: contentType,
         showldownload: shouldDownload,
-        extension
+        extension,
       } as ServerFileInterface;
     }
     return null;
@@ -133,20 +148,32 @@ export class FileHelperService implements UploadedFileHelperInterface {
    * @inheritdoc
    */
   // tslint:disable-next-line: typedef
-  async saveDataURLAsBlob(ressource: string, filename: string, extension: string = null) {
+  async saveDataURLAsBlob(
+    ressource: string,
+    filename: string,
+    extension: string = null
+  ) {
     const blocks = ressource.split(';');
     // Get the content type of the image
     const contentType = blocks[0].split(':')[1];
     // get the real base64 content of the file
     const data = blocks[1].split(',')[1];
-    Browser.saveFile(b64toBlob(data, contentType), extension ? `${filename}.${extension}` : filename);
+    Browser.saveFile(
+      b64toBlob(data, contentType),
+      extension ? `${filename}.${extension}` : filename
+    );
   }
 
   /**
    * @inheritdoc
    */
   // tslint:disable-next-line: typedef
-  downloadFile(url: string, filename: string, extension: string = null, params?: { [prop: string]: any }) {
+  downloadFile(
+    url: string,
+    filename: string,
+    extension: string = null,
+    params?: { [prop: string]: any }
+  ) {
     return this.client.downloadFile(url, filename, extension, params);
   }
 }
