@@ -8,6 +8,31 @@ import {
   QueryFiltersType,
 } from './types';
 
+function keyValue(key: string, value: unknown): [string, unknown] {
+  if (key && key.startsWith('date:')) {
+    try {
+      key = key.substring('date:'.length);
+      value = JSDate.format(
+        JSDate.create(
+          Array.isArray(value) ? value[0] : (value as string),
+          'DD/MM/YYYY'
+        ),
+        'YYYY-MM-DD'
+      );
+    } catch (_) {}
+    return [key, value];
+  }
+  return [key, value] as [string, unknown];
+}
+
+function perpareQueryKey(key: string) {
+  if (key.startsWith('date:')) {
+    return key.substring('date:'.length);
+  }
+  // TODO: For composed key different from date:key, apply the transformation required
+  return key;
+}
+
 /**
  * Transformation function that takes in frameworks specific pagination
  * configuration and attempts to build a server query object.
@@ -33,31 +58,23 @@ export function mapToPaginationQuery<T = any>(filters: QueryFiltersType = []) {
     let query: { [prop: string]: any } = {};
     if (state.filters) {
       for (const filter of state.filters) {
-        let { property, value } = filter as {
-          property: string;
-          value: string;
-        };
-        if (property && property.startsWith('date:')) {
-          try {
-            property = property.substring('date:'.length);
-            console.log('Before converting', value);
-            value = JSDate.format(JSDate.create(value, 'DD/MM/YYYY'), 'YYYY-MM-DD');
-            console.log('After converting', value);
-          } catch (err) {
-            console.log(err);
-          }
-        }
-        query[property] = [value];
+        let { property, value } = filter;
+        const [key, result] = keyValue(property, value);
+        query[key] = [result];
       }
     }
     //#region Add sort filters to the list of query filters
     if (state?.sort) {
+      const sortBy = state?.sort?.by;
       query = {
         ...query,
         _query: JSON.stringify({
           orderBy: {
             order: state?.sort?.reverse ? 'DESC' : 'ASC',
-            by: state?.sort?.by || 'updated_at',
+            by:
+              sortBy && typeof sortBy === 'string'
+                ? perpareQueryKey(sortBy)
+                : 'updated_at',
           },
         }),
       };
