@@ -29,7 +29,7 @@ export function createDateQueryParamPipe(format: string = 'DD/MM/YYYY') {
     const _value = /[\w\/]{1,}(([ \t])?-([ \t])?)[\w\/]{1,}/.test(value) ? value.split('|') : value;
     if (Array.isArray(_value)) {
       const after = toWebServiceDateFormat(_value[0]);
-      const before = toWebServiceDateFormat(_value[0]);
+      const before = toWebServiceDateFormat(_value[1]);
       return `>=:${after}|&&:<=:${before}`;
     }
     return toWebServiceDateFormat(_value as string);
