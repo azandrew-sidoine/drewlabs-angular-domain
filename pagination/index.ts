@@ -4,11 +4,13 @@ export {
   MapToPaginationQueryOutputType,
   MapToPaginationQueryInputType,
 } from './types';
+
 export {
   deletePaginableValue,
   mapPaginatorStateWith,
   mapPaginableTo,
   addPaginableValue,
   updatePaginableValue,
-  mapToPaginationQuery
+  mapToPaginationQuery,
+  createDateQueryParamPipe
 } from './helpers';
