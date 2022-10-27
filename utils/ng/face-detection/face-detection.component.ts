@@ -26,8 +26,6 @@ import { Video } from "../webcam/helpers";
 import { UserCameraService } from "../webcam/user-camera.service";
 import { getReadInterval } from "./helpers";
 
-declare var cv: any;
-
 @Component({
   selector: "app-face-detection",
   templateUrl: "./face-detection.component.html",
@@ -168,7 +166,6 @@ export class FaceDetectionComponent
               /* video recorder stuff */
 
               const interval_ = getReadInterval();
-              // Run opencv face detector
               // Run the face mesh detector as well
               this.faceMeshDetector
                 .detectFaces(image as HTMLVideoElement, interval_)

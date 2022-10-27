@@ -1,8 +1,6 @@
-import { OpenCVOptions } from "../types/open-cv";
+import { OpenCVOptions } from '../types/open-cv';
 
 export const OPENCV_DEFAULT_OPTIONS: OpenCVOptions = {
-    scriptUrl: 'assets/js/vendor/opencv.js',
-    onRuntimeInitialized: () => {
-
-    }
-} 
+  scriptUrl: 'assets/js/vendor/opencv.js',
+  onRuntimeInitialized: () => {},
+};
