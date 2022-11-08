@@ -61,14 +61,12 @@ export const onAuthenticationResultEffect: LoginReponseHandlerFunc<LoginResponse
           isAutenticated = true;
           // Check if is double authentication active
           const loginState = getLoginState(loginResponse);
-          console.log("SLIMTES", loginState)
           if (!isDoubleAuthActive(loginState)) {
             is2FactorAuthEnabled = false;
 
             // Put user details to into app local storage
             tokenProvider.setToken(loginState.token);
             const authenticatedUser = getLoggedInUser(loginResponse);
-            console.log("VOIRCACHE", authenticatedUser)
             if (Boolean(remember)) {
               rememberProvider.setToken({ userId: authenticatedUser.id, token: authenticatedUser.rememberToken });
             }
