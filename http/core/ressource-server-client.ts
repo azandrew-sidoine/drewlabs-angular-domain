@@ -41,6 +41,15 @@ export class DrewlabsRessourceServerClient implements IResourcesServerClient<IHt
       ) as Observable<IHttpResponse<any>>;
   }
 
+  getReference(path: string, body: any) {
+    return this.httpClient.get(path, body)
+      .pipe(
+
+        doLog(`/GET ${path} - Request response: `),
+        // mapToHttpResponse<IHttpResponse<any>>(this.responseTransformHandler.bind(null))
+      ) as Observable<IHttpResponse<any>>;
+  }
+
   /**
    * @inheritdoc
    */
