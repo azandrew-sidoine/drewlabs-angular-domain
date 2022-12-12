@@ -58,7 +58,6 @@ export class Recorder implements MediaRecorderInterface, OnDestroy {
   }
 
   private onData(ev: BlobEvent) {
-    console.log('Data event fired: ', ev);
     const buffer = [...(this._state.buffer || []), ev.data];
     this.setState({ buffer });
   }

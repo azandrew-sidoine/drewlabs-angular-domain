@@ -1,8 +1,8 @@
-import { DOCUMENT } from '@angular/common';
-import { Inject, Injectable, OnDestroy } from '@angular/core';
-import { createStateful } from '../../rxjs/helpers';
-import { NAVIGATOR } from '../../utils/ng/common';
-import { OnVideoStreamHandlerFn, VideoConstraints, Webcam } from '../types';
+import { DOCUMENT } from "@angular/common";
+import { Inject, Injectable, OnDestroy } from "@angular/core";
+import { createStateful } from "../../rxjs/helpers";
+import { NAVIGATOR } from "../../utils/ng/common";
+import { OnVideoStreamHandlerFn, VideoConstraints, Webcam } from "../types";
 
 @Injectable()
 export class WebcamService implements Webcam, OnDestroy {
@@ -25,7 +25,7 @@ export class WebcamService implements Webcam, OnDestroy {
       }
       this.navigator.mediaDevices.enumerateDevices().then((devices) => {
         this._videoDevices$.next(
-          devices.filter((value) => value.kind === 'videoinput')
+          devices.filter((value) => value.kind === "videoinput")
         );
       });
     }
@@ -39,7 +39,7 @@ export class WebcamService implements Webcam, OnDestroy {
     let video = <HTMLVideoElement>this.document.getElementById(videoId);
     // Create a video element
     if (!video) {
-      video = this.document.createElement('video');
+      video = this.document.createElement("video");
     }
     return this.startCamera(video, resolution, callback);
   }
@@ -53,19 +53,48 @@ export class WebcamService implements Webcam, OnDestroy {
     // by using observables if possible
     const promise = this.startCamera(video, resolution, callback);
     // Listen for media changes event
-    this.navigator.mediaDevices.addEventListener('devicechange', (event) => {
+    this.navigator.mediaDevices.addEventListener("devicechange", (event) => {
       this.startCamera(video, resolution, callback);
     });
     return promise;
   };
 
-  startCamera = (
+  async startCamera(
     video: HTMLVideoElement,
     resolution: string,
     callback: OnVideoStreamHandlerFn,
     customResolution?: VideoConstraints
-  ) => {
-    // Constraints
+  ) {
+    //#region Request permission using the navigator permission API
+    const permissions = this.navigator?.permissions;
+    if (
+      typeof permissions !== "undefined" &&
+      permissions !== null &&
+      typeof permissions.query === "function"
+    ) {
+      const result = await permissions.query({
+        name: "camera",
+      } as PermissionDescriptor & { name: "camera" });
+      const state = result.state;
+      if (state === "denied") {
+        throw new Error("Cannot start device camera, Access denied");
+      }
+    }
+    //#endregion Request permission using the navigator permission API
+    return await this.startPlatformCamera(
+      video,
+      resolution,
+      callback,
+      customResolution
+    );
+  }
+
+  private startPlatformCamera(
+    video: HTMLVideoElement,
+    resolution: string,
+    callback: OnVideoStreamHandlerFn,
+    customResolution?: VideoConstraints
+  ) {
     const constraints: { [index: string]: VideoConstraints } = {
       qvga: {
         width: { exact: 320 },
@@ -79,13 +108,13 @@ export class WebcamService implements Webcam, OnDestroy {
     // Get video constraints
     let videoConstraint: any = undefined;
     customResolution = customResolution ?? {};
-    if (resolution === 'custom') {
+    if (resolution === "custom") {
       videoConstraint = {
         ...customResolution,
         ...(customResolution?.deviceId
           ? {}
           : {
-              facingMode: videoConstraint?.facingMode ?? 'user',
+              facingMode: videoConstraint?.facingMode ?? "user",
             }),
       };
     } else {
@@ -94,7 +123,7 @@ export class WebcamService implements Webcam, OnDestroy {
         ...(customResolution?.deviceId
           ? {}
           : {
-              facingMode: videoConstraint?.facingMode ?? 'user',
+              facingMode: videoConstraint?.facingMode ?? "user",
             }),
       };
     }
@@ -114,18 +143,18 @@ export class WebcamService implements Webcam, OnDestroy {
           this.mediaStream = stream;
           this.onVideoStreamCallback = callback;
           video.addEventListener(
-            'canplay',
+            "canplay",
             this.onVideoCanPlay.bind(this),
             false
           );
-          video.addEventListener('pause', () => video.play());
+          video.addEventListener("pause", () => video.play());
           resolve();
         })
         .catch((err) => {
           reject(`User camera Error: ${err.name} - ${err.message}`);
         });
-    }); //
-  };
+    });
+  }
 
   stopCamera(onComplete?: () => void) {
     this.dispose();
@@ -139,7 +168,7 @@ export class WebcamService implements Webcam, OnDestroy {
       this.videoElement.pause();
       this.videoElement.srcObject = null;
       this.videoElement.removeEventListener(
-        'canplay',
+        "canplay",
         this.onVideoCanPlay.bind(this)
       );
       this.videoElement = null;
