@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { IAppStorage, SecureWebStorage, SecureStorage } from '../contracts/store-interface';
+import { IAppStorage, SecureWebStorage } from '../contracts/store-interface';
 import { storageEntry } from '../../utils';
 
 /**
