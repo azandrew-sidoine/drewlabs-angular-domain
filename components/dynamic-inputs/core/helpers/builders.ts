@@ -26,9 +26,7 @@ export const buildRequiredIfConfig = (stringifiedConfig: string) => {
   return undefined;
 };
 
-export const buildCheckboxItems = (
-  model: Partial<ControlInterface>
-) => {
+export const buildCheckboxItems = (model: Partial<ControlInterface>) => {
   if (model.selectableValues) {
     const items = model.selectableValues?.split("|") || [];
     return items?.map((v, i) => {
@@ -69,9 +67,7 @@ export const buildCheckboxItems = (
 /**
  * @deprecated
  */
-export const buildSelectItems = (
-  model: Partial<ControlInterface>
-) => {
+export const buildSelectItems = (model: Partial<ControlInterface>) => {
   if (model.selectableValues) {
     const items = model.selectableValues?.split("|") || [];
     return items.map((v, i) => {
@@ -113,9 +109,7 @@ export const buildSelectItems = (
   }
 };
 
-export const buildRadioInputItems = (
-  model: Partial<ControlInterface>
-) => {
+export const buildRadioInputItems = (model: Partial<ControlInterface>) => {
   if (model.selectableValues) {
     const items = model.selectableValues?.split("|") || [];
     return items.map((v, i) => {

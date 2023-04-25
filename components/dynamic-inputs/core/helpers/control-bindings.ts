@@ -5,46 +5,41 @@ import { BindingControlInterface } from "../contracts/dynamic-input";
 export const controlBindingsSetter = <T extends BindingControlInterface>(
   values: { [prop: string]: any }[]
 ) => {
+  values = values ?? [];
   return (control: Partial<T>) => {
     let result: any[] = [];
     if (control.clientBindings) {
       const items = control.clientBindings?.split("|") || [];
-      result = [
-        ...items.map((v, i) => {
-          if (v.indexOf(":") !== -1) {
-            const idValueFields = v.split(":");
-            return {
-              value: idValueFields[0].trim(),
-              name: idValueFields[1].trim(),
-              description: idValueFields[1].trim(),
-            } as ISelectItem;
-          } else {
-            return {
-              value: isNaN(+v.trim()) ? v.trim() : +v.trim(),
-              name: v.trim(),
-              description: v.trim(),
-            } as ISelectItem;
-          }
-        }),
+      result = items.map((v) => {
+        if (v.indexOf(":") !== -1) {
+          const idValueFields = v.split(":");
+          return {
+            value: idValueFields[0].trim(),
+            name: idValueFields[1].trim(),
+            description: idValueFields[1].trim(),
+          } as ISelectItem;
+        } else {
+          return {
+            value: isNaN(+v.trim()) ? v.trim() : +v.trim(),
+            name: v.trim(),
+            description: v.trim(),
+          } as ISelectItem;
+        }
+      });
+    } else {
+      const [k, v, g] = [
+        control.keyfield ?? "id",
+        control.valuefield ?? "label",
+        control.groupfield ?? "id",
       ];
-    } else if (control.serverBindings) {
-      result = [
-        ...(values
-          ? values.map((v) => {
-              return {
-                value: getObjectProperty(v, control.keyfield || ""),
-                description: getObjectProperty(v, control.valuefield || ""),
-                name: getObjectProperty(v, control.valuefield || ""),
-                type:
-                  control.groupfield &&
-                  control.keyfield !== control.groupfield &&
-                  control.valuefield !== control.groupfield
-                    ? v[control.groupfield]
-                    : null,
-              } as ISelectItem;
-            })
-          : []),
-      ];
+      result = values.map((_v) => {
+        return {
+          value: getObjectProperty(_v, k),
+          description: getObjectProperty(_v, v),
+          name: getObjectProperty(_v, v || ""),
+          type: g && k !== g && v !== g ? getObjectProperty(_v, g) : undefined,
+        } as ISelectItem;
+      });
     }
     return { ...control, items: result } as T;
   };
