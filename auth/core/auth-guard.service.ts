@@ -1,13 +1,5 @@
 import { Injectable, OnDestroy } from "@angular/core";
-import {
-  CanActivate,
-  Router,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-  CanActivateChild,
-  CanLoad,
-  Route,
-} from "@angular/router";
+import { Router, ActivatedRouteSnapshot, RouterStateSnapshot, Route } from "@angular/router";
 import { AuthService } from "./auth.service";
 import { AuthPathConfig } from "./config";
 import { Observable } from "rxjs";
@@ -18,7 +10,7 @@ import { AuthTokenService } from "../token";
 
 @Injectable()
 export class AuthGuardService
-  implements CanActivate, CanActivateChild, CanLoad, OnDestroy
+   implements OnDestroy
 {
   private authState$ = this.auth.state$;
   // tslint:disable-next-line: variable-name
@@ -73,7 +65,7 @@ export class AuthGuardService
 }
 
 @Injectable()
-export class AuthorizationsGuard implements CanActivate {
+export class AuthorizationsGuard  {
   constructor(private router: Router, private auth: AuthService) {}
 
   canActivate(
@@ -139,7 +131,7 @@ export class AuthorizationsGuard implements CanActivate {
   }
 }
 @Injectable()
-export class RootComponentGuard implements CanActivate {
+export class RootComponentGuard  {
   constructor(
     private router: Router,
     private auth: AuthService,
