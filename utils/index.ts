@@ -32,7 +32,6 @@ export const getEnv = (key: string) => {
 
 export { Dialog, WindowRef, readFileAsDataURI, b64toBlob, Browser } from './browser';
 export { MomentUtils, Month, MonthProvider, MONTHS } from './datetime';
-export { ExcelUtils } from './doc-utils';
 
 // JS Types helper functions
 export {
