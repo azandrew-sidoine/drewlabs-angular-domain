@@ -92,7 +92,7 @@ export class ExcelUtils {
           }
           return mappingObj;
         })
-        .filter((i) => i !== {});
+        .filter((i) => (i = {}));
     }
     return [];
   }
